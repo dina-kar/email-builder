@@ -3,6 +3,9 @@
 /* Import GrapesJS CSS */
 @import 'grapesjs/dist/css/grapes.min.css';
 
+/* Import Angular Material Theme */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
 /* Global Styles */
 * {
   margin: 0;
@@ -10,11 +13,22 @@
   box-sizing: border-box;
 }
 
+:root {
+  --amber-accent: #FFC107;
+  --amber-hover: #FFB300;
+  --amber-light: #FFECB3;
+  --dark-text: #212121;
+  --gray-text: #757575;
+  --light-gray: #BDBDBD;
+  --white: #FFFFFF;
+  --panel-bg: #FAFAFA;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  color: #333;
+  color: var(--dark-text);
   background-color: #f5f5f5;
 }
 
@@ -33,14 +47,14 @@ app-root {
 
 /* GrapesJS Panel Styles */
 .gjs-cv-canvas {
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: transparent;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
 }
 
 .gjs-pn-panels {
-  display: flex;
+  display: none !important; /* Hide the default GrapesJS panels since we're using custom ones */
 }
 
 .gjs-pn-views {
@@ -48,27 +62,46 @@ app-root {
 }
 
 .gjs-blocks-c {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  flex: none !important;
+  align-items: start !important;
 }
 
-/* Material Design Styles */
+/* Responsive design for blocks */
+@media (max-width: 1200px) {
+  .gjs-blocks-c {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 800px) {
+  .gjs-blocks-c {
+    grid-template-columns: 1fr !important;
+    gap: 6px !important;
+  }
+}
+
+/* Material Design Styles - Override dark theme */
 .gjs-one-bg {
-  background-color: #1e1e1e;
+  background-color: #f8f9fa !important;
 }
 
 .gjs-two-color {
-  color: #ddd;
+  color: #212529 !important;
 }
 
 .gjs-three-bg {
-  background-color: #2a2a2a;
-  color: #ddd;
+  background-color: #ffffff !important;
+  color: #212529 !important;
 }
 
 .gjs-four-color {
-  color: #4a90e2;
+  color: #FFC107 !important;
 }
 
 /* Button Styles */
@@ -96,36 +129,90 @@ app-root {
 
 /* Modal Styles */
 .gjs-mdl-dialog {
-  border-radius: 3px;
+  border-radius: 8px;
+  background-color: #FFFFFF !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .gjs-mdl-dialog-sm {
   max-width: 500px;
 }
 
-/* Field Styles */
+.gjs-mdl-backdrop {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Field Styles - Override default styles */
 .gjs-field {
   position: relative;
   margin-bottom: 15px;
 }
 
 .gjs-field input[type="text"],
-.gjs-field input[type="email"] {
+.gjs-field input[type="email"],
+.gjs-field input[type="number"],
+.gjs-field select,
+.gjs-field textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 3px;
+  border: 1px solid #E0E0E0;
+  border-radius: 4px;
   font-size: 14px;
+  background-color: #FFFFFF !important;
+  color: #212529 !important;
 }
 
 .gjs-field input[type="text"]:focus,
-.gjs-field input[type="email"]:focus {
+.gjs-field input[type="email"]:focus,
+.gjs-field input[type="number"]:focus,
+.gjs-field select:focus,
+.gjs-field textarea:focus {
   outline: none;
-  border-color: #4a90e2;
+  border-color: #FFC107;
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
 }
 
 #gjs-sm-input-holder {
   display: block;
+}
+
+/* Color Picker and Popover Styles */
+.gjs-color-picker {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E0E0E0 !important;
+  border-radius: 4px !important;
+}
+
+.gjs-color-picker * {
+  color: #212529 !important;
+}
+
+.gjs-dropdown {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E0E0E0 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.gjs-dropdown-item {
+  color: #212529 !important;
+  padding: 8px 12px !important;
+}
+
+.gjs-dropdown-item:hover {
+  background-color: #FFECB3 !important;
+  color: #212121 !important;
+}
+
+/* Style Manager Additional Fixes */
+.gjs-sm-property__color {
+  background-color: #FFFFFF !important;
+}
+
+.gjs-sm-property__color-picker {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E0E0E0 !important;
+  border-radius: 4px !important;
 }
 
 /* Property Styles */
@@ -150,6 +237,29 @@ app-root {
 
 .anim-spin {
   animation: spin 1s linear infinite;
+}
+
+/* Notification Animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
 }
 
 /* Test Form Styles */

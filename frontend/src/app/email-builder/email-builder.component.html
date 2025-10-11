@@ -1,144 +1,186 @@
-<div id="gjs">
-  <table class="main-body">
-    <tr class="row">
-      <td class="main-body-cell">
-        <table class="container">
-          <tr>
-            <td class="container-cell">
-              <table class="table100 c1790">
+<div class="editor-container">
+  <!-- Top Toolbar -->
+  <header class="editor-top-bar">
+    <div class="editor-top-bar-left">
+      <div class="editor-logo">
+        <span class="material-icons editor-logo-icon">email</span>
+        <span class="editor-logo-text">C1X Email Builder</span>
+      </div>
+    </div>
+    
+    <div class="editor-top-bar-center">
+      <button class="editor-btn" id="btn-save" title="Save" (click)="saveTemplate()">
+        <span class="material-icons">save</span>
+        <span class="editor-btn-text">Save</span>
+      </button>
+      <button class="editor-btn" id="btn-undo" title="Undo" (click)="undo()">
+        <span class="material-icons">undo</span>
+      </button>
+      <button class="editor-btn" id="btn-redo" title="Redo" (click)="redo()">
+        <span class="material-icons">redo</span>
+      </button>
+      <div class="editor-divider"></div>
+      <button class="editor-btn" id="btn-preview" title="Preview" (click)="preview()">
+        <span class="material-icons">visibility</span>
+        <span class="editor-btn-text">Preview</span>
+      </button>
+      <button class="editor-btn" id="btn-export" title="Export HTML" (click)="exportHTML()">
+        <span class="material-icons">code</span>
+        <span class="editor-btn-text">Export</span>
+      </button>
+      <button class="editor-btn" id="btn-import" title="Import HTML" (click)="importHTML()">
+        <span class="material-icons">upload</span>
+        <span class="editor-btn-text">Import</span>
+      </button>
+      <div class="editor-divider"></div>
+      <button class="editor-btn" id="btn-clear" title="Clear Canvas" (click)="clearCanvas()">
+        <span class="material-icons">delete_outline</span>
+      </button>
+    </div>
+    
+    <div class="editor-top-bar-right">
+      <button class="editor-btn" id="btn-toggle-left" title="Toggle Components Panel" (click)="toggleLeftPanel()">
+        <span class="material-icons">{{ leftPanelOpen ? 'chevron_left' : 'chevron_right' }}</span>
+      </button>
+      <button class="editor-btn" id="btn-toggle-right" title="Toggle Properties Panel" (click)="toggleRightPanel()">
+        <span class="material-icons">{{ rightPanelOpen ? 'chevron_right' : 'chevron_left' }}</span>
+      </button>
+      <button class="editor-btn" id="btn-devices" title="Device Manager" (click)="toggleDevices()">
+        <span class="material-icons">devices</span>
+      </button>
+      <button class="editor-btn" id="btn-view-components" title="View Components" (click)="toggleComponentOutlines()">
+        <span class="material-icons">visibility</span>
+      </button>
+      <button class="editor-btn" id="btn-fullscreen" title="Fullscreen" (click)="toggleFullscreen()">
+        <span class="material-icons">fullscreen</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Editor Content Area -->
+  <div class="editor-content">
+    <!-- Left Components Panel -->
+    <aside class="editor-left-panel" [class.collapsed]="!leftPanelOpen">
+      <div class="editor-panel-header">
+        <span class="material-icons">widgets</span>
+        <span>Components</span>
+      </div>
+      <div class="editor-panel-content">
+        <div id="blocks" class="editor-blocks"></div>
+      </div>
+    </aside>
+
+    <!-- Canvas Area -->
+    <main class="editor-canvas-wrapper">
+      <div class="editor-canvas-toolbar">
+        <div class="editor-device-buttons" id="device-manager"></div>
+      </div>
+      <div class="editor-canvas" id="gjs">
+        <!-- Default email template content -->
+        <table class="main-body">
+          <tr class="row">
+            <td class="main-body-cell">
+              <table class="container">
                 <tr>
-                  <td class="top-cell" id="c1793">
-                    <u class="browser-link" id="c307">View in browser</u>
-                  </td>
-                </tr>
-              </table>
-              <table class="c1766">
-                <tr>
-                  <td class="cell c1769">
-                    <img class="c926" src="https://grapesjs.com/img/grapesjs-logo.png" alt="GrapesJS."/>
-                  </td>
-                  <td class="cell c1776">
-                    <div class="c1144">C1X Email Builder<br/></div>
-                  </td>
-                </tr>
-              </table>
-              <table class="card">
-                <tr>
-                  <td class="card-cell">
-                    <img class="c1271" src="https://grapesjs.com/img/tmp-header-txt.jpg" alt="Big image here"/>
-                    <table class="table100 c1357">
+                  <td class="container-cell">
+                    <table class="table100 c1790">
                       <tr>
-                        <td class="card-content">
-                          <h1 class="card-title">Build your newsletters faster than ever<br/></h1>
-                          <p class="card-text">Import, build, test and export responsive newsletter templates faster than ever using C1X Email Builder.</p>
-                          <table class="c1542">
+                        <td class="top-cell" id="c1793">
+                          <u class="browser-link" id="c307">View in browser</u>
+                        </td>
+                      </tr>
+                    </table>
+                    <table class="c1766">
+                      <tr>
+                        <td class="cell c1769">
+                          <img class="c926" src="https://grapesjs.com/img/grapesjs-logo.png" alt="GrapesJS."/>
+                        </td>
+                        <td class="cell c1776">
+                          <div class="c1144">C1X Email Builder<br/></div>
+                        </td>
+                      </tr>
+                    </table>
+                    <table class="card">
+                      <tr>
+                        <td class="card-cell">
+                          <img class="c1271" src="https://grapesjs.com/img/tmp-header-txt.jpg" alt="Big image here"/>
+                          <table class="table100 c1357">
                             <tr>
-                              <td class="card-footer" id="c1545">
-                                <a class="button" href="https://github.com/grapesjs/grapesjs">Free and Open Source</a>
+                              <td class="card-content">
+                                <h1 class="card-title">Build your newsletters faster than ever<br/></h1>
+                                <p class="card-text">Import, build, test and export responsive newsletter templates faster than ever using C1X Email Builder.</p>
+                                <table class="c1542">
+                                  <tr>
+                                    <td class="card-footer" id="c1545">
+                                      <a class="button" href="https://github.com/grapesjs/grapesjs">Free and Open Source</a>
+                                    </td>
+                                  </tr>
+                                </table>
                               </td>
                             </tr>
                           </table>
                         </td>
                       </tr>
                     </table>
-                  </td>
-                </tr>
-              </table>
-              <table class="list-item">
-                <tr>
-                  <td class="list-item-cell">
-                    <table class="list-item-content">
-                      <tr class="list-item-row">
-                        <td class="list-cell-left">
-                          <img class="list-item-image" src="https://grapesjs.com/img/tmp-blocks.jpg" alt="Image1"/>
-                        </td>
-                        <td class="list-cell-right">
-                          <h1 class="card-title">Built-in Blocks</h1>
-                          <p class="card-text">Drag and drop built-in blocks from the right panel and style them in a matter of seconds</p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-              <table class="list-item">
-                <tr>
-                  <td class="list-item-cell">
-                    <table class="list-item-content">
-                      <tr class="list-item-row">
-                        <td class="list-cell-left">
-                          <img class="list-item-image" src="https://grapesjs.com/img/tmp-tgl-images.jpg" alt="Image2"/>
-                        </td>
-                        <td class="list-cell-right">
-                          <h1 class="card-title">Toggle images</h1>
-                          <p class="card-text">Build a good looking newsletter even without images enabled by the email clients</p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-              <table class="grid-item-row">
-                <tr>
-                  <td class="grid-item-cell2-l">
-                    <table class="grid-item-card">
+                    <table class="footer">
                       <tr>
-                        <td class="grid-item-card-cell">
-                          <img class="grid-item-image" src="https://grapesjs.com/img/tmp-send-test.jpg" alt="Image1"/>
-                          <table class="grid-item-card-body">
-                            <tr>
-                              <td class="grid-item-card-content">
-                                <h1 class="card-title">Test it</h1>
-                                <p class="card-text">You can send email tests directly from the editor and check how are looking on your email clients</p>
-                              </td>
-                            </tr>
-                          </table>
+                        <td class="footer-cell">
+                          <div class="c2577">
+                            <p class="footer-info">C1X Email Builder is a professional email template builder with an intuitive drag-and-drop interface.</p>
+                            <br/>
+                          </div>
+                          <div class="c2421">
+                            POWERED BY C1X TECHNOLOGY
+                            <p></p>
+                          </div>
                         </td>
                       </tr>
                     </table>
-                  </td>
-                  <td class="grid-item-cell2-r">
-                    <table class="grid-item-card">
-                      <tr>
-                        <td class="grid-item-card-cell">
-                          <img class="grid-item-image" src="https://grapesjs.com/img/tmp-devices.jpg" alt="Image2"/>
-                          <table class="grid-item-card-body">
-                            <tr>
-                              <td class="grid-item-card-content">
-                                <h1 class="card-title">Responsive</h1>
-                                <p class="card-text">Using the device manager you'll always send a fully responsive contents</p>
-                              </td>
-                            </tr>
-                          </table>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-              <table class="footer">
-                <tr>
-                  <td class="footer-cell">
-                    <div class="c2577">
-                      <p class="footer-info">C1X Email Builder is a professional email template builder with an intuitive drag-and-drop interface.
-                        Create beautiful, responsive newsletters with ease.</p>
-                      <br/>
-                    </div>
-                    <div class="c2421">
-                      POWERED BY C1X TECHNOLOGY
-                      <p></p>
-                    </div>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
         </table>
-      </td>
-    </tr>
-  </table>
+      </div>
+    </main>
+
+    <!-- Right Properties Panel -->
+    <aside class="editor-right-panel" [class.collapsed]="!rightPanelOpen">
+      <div class="editor-panel-tabs">
+        <button 
+          class="editor-tab-button" 
+          [class.active]="activeTab === 'style'" 
+          (click)="setActiveTab('style')">
+          <span class="material-icons">palette</span>
+          <span>Style</span>
+        </button>
+        <button 
+          class="editor-tab-button" 
+          [class.active]="activeTab === 'traits'" 
+          (click)="setActiveTab('traits')">
+          <span class="material-icons">settings</span>
+          <span>Traits</span>
+        </button>
+        <button 
+          class="editor-tab-button" 
+          [class.active]="activeTab === 'layers'" 
+          (click)="setActiveTab('layers')">
+          <span class="material-icons">layers</span>
+          <span>Layers</span>
+        </button>
+      </div>
+      
+      <div class="editor-panel-content">
+        <div id="styles-container" class="editor-style-manager" [class.active]="activeTab === 'style'"></div>
+        <div id="traits-container" class="editor-traits-manager" [class.active]="activeTab === 'traits'"></div>
+        <div id="layers-container" class="editor-layers-manager" [class.active]="activeTab === 'layers'"></div>
+      </div>
+    </aside>
+  </div>
 </div>
 
+<!-- Info Panel (Hidden by default) -->
 <div id="info-panel" style="display:none">
   <br/>
   <svg class="info-panel-logo" xmlns="//www.w3.org/2000/svg" version="1">
@@ -153,18 +195,11 @@
     <br/><br/>
     <b>Features:</b>
     <ul style="text-align: left; display: inline-block;">
-      <li>Drag & drop blocks (now on the left sidebar)</li>
-      <li>Style manager (on the right sidebar)</li>
+      <li>Drag & drop blocks from the left sidebar</li>
+      <li>Style manager on the right sidebar</li>
       <li>Responsive design tools</li>
       <li>Import/Export HTML</li>
       <li>Rich text editing with CKEditor 4.25.1-lts</li>
     </ul>
-  </div>
-</div>
-
-<div style="display: none">
-  <div class="gjs-logo-cont">
-    <div class="gjs-logo-text">C1X Email Builder</div>
-    <div class="gjs-logo-version"></div>
   </div>
 </div>
