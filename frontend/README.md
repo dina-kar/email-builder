@@ -1,6 +1,24 @@
-# EmailEditorFrontend
+````markdown
+# C1X Email Builder - Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4.
+A professional no-code email builder powered by Angular and GrapesJS technology.
+
+## Features
+
+- 🎨 **Drag & Drop Interface**: Blocks and elements panel on the left sidebar
+- ✨ **Style Manager**: Comprehensive styling options on the right sidebar
+- 📱 **Responsive Design**: Build mobile-friendly email templates
+- 🔒 **Secure**: Uses CKEditor 4.25.1-lts for rich text editing
+- 💾 **Import/Export**: Save and load HTML templates
+- 🖼️ **Asset Manager**: Manage images and media assets
+
+## Technology Stack
+
+- **Angular**: 20.3.0
+- **GrapesJS**: 0.21.10
+- **CKEditor**: 4.25.1-lts (secure version)
+- **GrapesJS Newsletter Preset**: 1.0.2
+- **GrapesJS CKEditor Plugin**: 1.0.1
 
 ## Development server
 
@@ -12,20 +30,6 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
 ## Building
 
 To build the project run:
@@ -36,24 +40,18 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-## Running unit tests
+## Security Updates
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+✅ **CKEditor Updated**: Upgraded from 4.21.0 to 4.25.1-lts to address security vulnerabilities.
 
-```bash
-ng test
-```
+## Layout
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+- **Left Panel**: Blocks and elements for drag & drop
+- **Center**: Canvas for email template editing
+- **Right Panel**: Style manager and settings
 
 ## Additional Resources
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+For more information on using the Angular CLI, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+````

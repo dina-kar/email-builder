@@ -10,6 +10,7 @@
   overflow: visible !important;
 }
 
+
 /* Newsletter Email Styles */
 .link {
   color: rgb(217, 131, 166);
@@ -363,6 +364,13 @@
   display: flex;
   align-items: center;
   padding: 5px 10px;
+}
+
+.gjs-logo-text {
+  font-weight: bold;
+  font-size: 16px;
+  color: #444;
+  letter-spacing: 0.5px;
 }
 
 .gjs-logo {

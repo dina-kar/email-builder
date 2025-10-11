@@ -17,7 +17,10 @@ export class EmailBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   editor: any;
   private host = 'https://grapesjs.com/';
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // Migrate old templates from GrapesJS to C1X storage key
+    this.migrateOldTemplates();
+  }
 
   ngAfterViewInit(): void {
     this.initializeEditor();
@@ -29,15 +32,34 @@ export class EmailBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private migrateOldTemplates(): void {
+    // One-time migration from old storage key to new C1X branded key
+    const oldKey = 'gjsProjectNl';
+    const newKey = 'c1xEmailBuilder';
+    
+    const oldData = localStorage.getItem(oldKey);
+    const newData = localStorage.getItem(newKey);
+    
+    // Only migrate if old data exists and new data doesn't
+    if (oldData && !newData) {
+      try {
+        localStorage.setItem(newKey, oldData);
+        console.log('Successfully migrated templates to C1X Email Builder');
+      } catch (error) {
+        console.error('Failed to migrate templates:', error);
+      }
+    }
+  }
+
   private initializeEditor(): void {
-    // Set up GrapesJS editor with the Newsletter plugin
+    // Set up GrapesJS editor with the Newsletter plugin - C1X Email Builder
     this.editor = grapesjs.init({
       selectorManager: { componentFirst: true },
       height: '100%',
       storageManager: {
         type: 'local',
         options: {
-          local: { key: 'gjsProjectNl' }
+          local: { key: 'c1xEmailBuilder' }
         }
       },
       assetManager: {
@@ -85,6 +107,7 @@ export class EmailBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
               { name: 'links', items: ['Link', 'Unlink'] },
               { name: 'colors', items: ['TextColor', 'BGColor'] },
             ],
+            customConfig: '' // Prevent loading external config
           }
         }
       }
@@ -187,17 +210,20 @@ export class EmailBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editor.onReady(() => {
       const pnm = this.editor.Panels;
 
+      // Move blocks to left and style manager to right
+      this.repositionPanels();
+
       // Show borders by default
       const visibilityBtn = pnm.getButton('options', 'sw-visibility');
       if (visibilityBtn) {
         visibilityBtn.set('active', 1);
       }
 
-      // Show logo with the version
+      // Update logo with C1X branding
       const logoCont = document.querySelector('.gjs-logo-cont');
       const versionEl = document.querySelector('.gjs-logo-version');
       if (versionEl) {
-        versionEl.innerHTML = 'v' + grapesjs.version;
+        versionEl.innerHTML = 'C1X v' + grapesjs.version;
       }
       const logoPanel = document.querySelector('.gjs-pn-commands');
       if (logoPanel && logoCont) {
@@ -211,5 +237,22 @@ export class EmailBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }, 200);
     });
+  }
+
+  private repositionPanels(): void {
+    // Get panel elements
+    const panelsContainer = document.querySelector('.gjs-pn-panels');
+    const blocksPanel = document.querySelector('.gjs-pn-views-container');
+    const styleManagerPanel = document.querySelector('.gjs-pn-views');
+    
+    if (blocksPanel && panelsContainer) {
+      // Move blocks panel to the left
+      blocksPanel.classList.add('gjs-left-panel');
+    }
+    
+    if (styleManagerPanel) {
+      // Ensure style manager stays on the right
+      styleManagerPanel.classList.add('gjs-right-panel');
+    }
   }
 }
