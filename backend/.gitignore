@@ -54,3 +54,10 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Docker volumes
+/postgres-data
+/localstack-data
+
+# Keep .env.example but ignore .env
+!.env.example
