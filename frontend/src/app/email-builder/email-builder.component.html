@@ -9,9 +9,17 @@
     </div>
     
     <div class="editor-top-bar-center">
-      <button class="editor-btn" id="btn-save" title="Save" (click)="saveTemplate()">
+      <button class="editor-btn" id="btn-save" title="Save Locally" (click)="saveTemplate()">
         <span class="material-icons">save</span>
-        <span class="editor-btn-text">Save</span>
+        <span class="editor-btn-text">Save Local</span>
+      </button>
+      <button class="editor-btn" id="btn-save-cloud" title="Save to Cloud" (click)="saveTemplateToBackend()">
+        <span class="material-icons">cloud_upload</span>
+        <span class="editor-btn-text">Save Cloud</span>
+      </button>
+      <button class="editor-btn" id="btn-load-cloud" title="Load from Cloud" (click)="showTemplatesList()">
+        <span class="material-icons">cloud_download</span>
+        <span class="editor-btn-text">Load Cloud</span>
       </button>
       <button class="editor-btn" id="btn-undo" title="Undo" (click)="undo()">
         <span class="material-icons">undo</span>
@@ -31,6 +39,10 @@
       <button class="editor-btn" id="btn-import" title="Import HTML" (click)="importHTML()">
         <span class="material-icons">upload</span>
         <span class="editor-btn-text">Import</span>
+      </button>
+      <button class="editor-btn" id="btn-load-sample" title="Load Sample Template" (click)="loadSampleTemplate()">
+        <span class="material-icons">article</span>
+        <span class="editor-btn-text">Sample</span>
       </button>
       <div class="editor-divider"></div>
       <button class="editor-btn" id="btn-clear" title="Clear Canvas" (click)="clearCanvas()">

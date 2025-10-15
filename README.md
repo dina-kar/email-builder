@@ -1,27 +1,49 @@
-# C1X Email Builder
+# Email Builder - Full Stack Application
 
-A professional no-code email builder application with a modern Angular frontend and NestJS backend.
+A complete email template builder application with Angular frontend (GrapesJS) and NestJS backend with PostgreSQL and S3 storage.
 
-## 🎯 Features
+## �️ Architecture
 
-- **Intuitive Interface**: Drag & drop blocks from the left panel
-- **Advanced Styling**: Comprehensive style manager on the right panel
-- **Rich Text Editor**: Secure CKEditor 4.25.1-lts integration
-- **Responsive Design**: Build mobile-friendly email templates
-- **Template Management**: Save, load, and export HTML templates
-- **Asset Management**: Handle images and media files
+```
+email-builder/
+├── frontend/          # Angular 20 + GrapesJS email builder
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── email-builder/    # Main editor component
+│   │   │   └── services/         # API services
+│   │   └── ...
+│   └── ...
+│
+├── backend/           # NestJS API server
+│   ├── src/
+│   │   ├── templates/            # Templates CRUD module
+│   │   ├── s3/                   # S3 storage service
+│   │   └── ...
+│   ├── docker-compose.yml        # PostgreSQL + LocalStack
+│   └── ...
+│
+└── README.md         # This file
+```
 
-## 🏗️ Architecture
+## ✨ Features
 
 ### Frontend
-- **Framework**: Angular 20.3.0
-- **Email Builder**: GrapesJS 0.21.10 with Newsletter Preset
-- **Text Editor**: CKEditor 4.25.1-lts (secure version)
-- **Package Manager**: pnpm
+- 📧 Drag-and-drop email template builder (GrapesJS)
+- 🎨 Visual component editing with CKEditor
+- 📱 Responsive device preview (Desktop/Tablet/Mobile)
+- 💾 Local storage with backend sync
+- 🖼️ Asset management with S3 upload
+- 📤 HTML/CSS export
+- 🎯 Custom blocks and components
 
 ### Backend
-- **Framework**: NestJS
-- **Package Manager**: pnpm
+- 🔐 RESTful API with validation
+- 🗄️ PostgreSQL database with TypeORM
+- 📦 S3 asset storage (LocalStack for dev)
+- 🖼️ Multi-format image upload support
+- 🔄 Automatic asset cleanup
+- 📝 Comprehensive logging
+- 🐳 Dockerized services
 
 ## 🚀 Getting Started
 

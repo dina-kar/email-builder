@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import grapesjs from 'grapesjs';
 import grapesjsPresetNewsletter from 'grapesjs-preset-newsletter';
 import grapesjsPluginCkeditor from 'grapesjs-plugin-ckeditor';
+import { TemplateService, Template } from '../services/template.service';
 
 declare const CKEDITOR: any;
 
@@ -23,9 +24,18 @@ export class EmailBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   activeTab: 'style' | 'traits' | 'layers' = 'style';
   componentOutlinesVisible = false;
 
+  // Backend integration
+  templates: Template[] = [];
+  currentTemplateId: string | null = null;
+
+  constructor(private templateService: TemplateService) {}
+
   ngOnInit(): void {
     // Migrate old templates from GrapesJS to C1X storage key
     this.migrateOldTemplates();
+    
+    // Load templates from backend
+    this.loadTemplatesFromBackend();
   }
 
   ngAfterViewInit(): void {
@@ -188,7 +198,53 @@ export class EmailBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // Setup additional configurations
     this.setupCustomCommands();
+    this.setupCanvasConfig();
     this.onEditorReady();
+  }
+
+  /* ========================================
+     Canvas Configuration for Better Component Visibility
+     ======================================== */
+  private setupCanvasConfig(): void {
+    const canvas = this.editor.Canvas;
+    
+    // Make canvas frame narrower with max-width
+    canvas.getConfig().frameStyle = `
+      max-width: 800px;
+      margin: 0 auto;
+    `;
+    
+    // Add component:add event to highlight newly dropped components
+    this.editor.on('component:add', (component: any) => {
+      // Flash the newly added component
+      setTimeout(() => {
+        if (component && component.view && component.view.el) {
+          const el = component.view.el;
+          el.style.transition = 'all 0.3s ease';
+          
+          // Select the component automatically
+          this.editor.select(component);
+          
+          // Scroll to the component
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 50);
+    });
+    
+    // Enhance component selection visibility
+    this.editor.on('component:selected', (component: any) => {
+      if (component && component.view && component.view.el) {
+        const el = component.view.el;
+        
+        // Add a temporary highlight
+        el.style.transition = 'all 0.3s ease';
+        
+        // Scroll to selected component
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    });
   }
 
   /* ========================================
@@ -293,38 +349,161 @@ export class EmailBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     
-    // Import command
+    // Import command - Enhanced to handle full HTML documents
     cmdm.add('import-template', {
       run: (editor: any) => {
         const modal = editor.Modal;
-        const codeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
         const container = document.createElement('div');
+        const textarea = document.createElement('textarea');
         const importBtn = document.createElement('button');
         
+        // Style container
+        container.style.cssText = `
+          padding: 20px;
+          background: white;
+          border-radius: 8px;
+        `;
+        
+        // Style textarea
+        textarea.style.cssText = `
+          width: 100%;
+          height: 400px;
+          padding: 12px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+          font-size: 13px;
+          line-height: 1.4;
+          resize: vertical;
+          box-sizing: border-box;
+          margin-bottom: 12px;
+        `;
+        textarea.placeholder = 'Paste your HTML code here (full document or just body content)...';
+        
+        // Style import button
         importBtn.innerHTML = 'Import';
-        importBtn.className = 'gjs-btn-prim';
-        importBtn.style.marginTop = '10px';
+        importBtn.style.cssText = `
+          background: #FFC107;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 500;
+        `;
+        
         importBtn.onclick = () => {
-          const code = codeViewer.getContent();
-          editor.setComponents(code);
-          modal.close();
+          let code = textarea.value.trim();
+          
+          // Check if it's a full HTML document
+          if (code.toLowerCase().includes('<!doctype') || code.toLowerCase().includes('<html')) {
+            // Extract body content
+            const bodyMatch = code.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            if (bodyMatch && bodyMatch[1]) {
+              code = bodyMatch[1].trim();
+            } else {
+              // Try to extract anything between <body> tags
+              const simpleBodyMatch = code.match(/<body>([\s\S]*?)<\/body>/i);
+              if (simpleBodyMatch && simpleBodyMatch[1]) {
+                code = simpleBodyMatch[1].trim();
+              }
+            }
+            
+            // Also extract and apply CSS if present
+            const styleMatch = code.match(/<style[^>]*>([\s\S]*?)<\/style>/gi);
+            if (styleMatch) {
+              styleMatch.forEach((styleBlock: string) => {
+                const cssContent = styleBlock.replace(/<\/?style[^>]*>/gi, '');
+                // Note: GrapesJS newsletter preset uses inline styles, so external CSS may not apply fully
+                console.log('Extracted CSS:', cssContent);
+              });
+            }
+          }
+          
+          if (code) {
+            editor.setComponents(code);
+            modal.close();
+          } else {
+            alert('Please paste valid HTML content');
+          }
         };
         
-        codeViewer.set({
-          codeName: 'htmlmixed',
-          theme: 'hopscotch',
-          readOnly: false
-        });
-        
-        modal.setTitle('Import HTML');
-        modal.setContent('');
-        modal.setContent(container);
-        
-        codeViewer.init(container);
+        modal.setTitle('Import HTML Template');
+        container.appendChild(textarea);
         container.appendChild(importBtn);
+        modal.setContent(container);
         modal.open();
       }
     });
+  }
+
+  /* ========================================
+     Load Default Template
+     ======================================== */
+  private loadDefaultTemplate(): void {
+    const defaultEmail = `
+    <table cellpadding="0" cellspacing="0" width="100%" style="background:#f1f3f5;padding:40px 0;">
+      <tr>
+        <td align="center">
+          <table cellpadding="0" cellspacing="0" width="600" style="background:#ffffff;border-radius:6px;overflow:hidden;">
+            <tr>
+              <td style="padding:28px 32px; text-align:center; border-bottom:1px solid #e9ecef;">
+                <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=60" alt="Brand" style="max-width:140px; height:auto; display:block; margin:0 auto 12px; border-radius:8px;">
+                <h2 style="margin:0;font-size:20px;color:#111827;">Product Update — What's New</h2>
+                <p style="margin:6px 0 0;color:#6b7280;font-size:14px;">A short intro about this month's update and highlights.</p>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:28px 32px;">
+                <img src="https://images.unsplash.com/photo-1556157382-97eda2d62296?w=1200&q=60" alt="Hero" style="width:100%; display:block; border-radius:6px;">
+                <h3 style="font-size:18px;margin:14px 0 6px;color:#111827;">Meet the new Dashboard</h3>
+                <p style="margin:0 0 12px;color:#6b7280;">Streamlined analytics, improved performance, and a refreshed visual design.</p>
+                <div style="text-align:center;">
+                  <a href="#" style="display:inline-block;padding:12px 22px;border-radius:6px;background:#2563eb;color:#fff;font-weight:600;text-decoration:none;">Explore the Dashboard ➜</a>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:0 32px 28px;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td valign="top" style="width:50%; padding-right:8px;">
+                      <img src="https://images.unsplash.com/photo-1545239351-1141bd82e8a6?w=800&q=60" alt="" style="width:100%; display:block; border-radius:6px;">
+                      <h4 style="margin:12px 0 6px;font-size:16px;color:#111827;">Faster Load Times</h4>
+                      <p style="margin:0;color:#6b7280;font-size:14px;">Significant improvements across critical pages.</p>
+                    </td>
+                    <td valign="top" style="width:50%; padding-left:8px;">
+                      <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800&q=60" alt="" style="width:100%; display:block; border-radius:6px;">
+                      <h4 style="margin:12px 0 6px;font-size:16px;color:#111827;">New Integrations</h4>
+                      <p style="margin:0;color:#6b7280;font-size:14px;">Connect your tools with one click.</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:0 32px 28px;text-align:center;">
+                <a href="#" style="display:inline-block;padding:14px 28px;border-radius:999px;background:#10b981;color:#fff;font-weight:700;text-decoration:none;font-size:15px;">Get Started — It's Free</a>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:20px 32px; border-top:1px solid #e9ecef; text-align:center; font-size:13px; color:#9ca3af;">
+                <p style="margin:8px 0 0;">You are receiving this email because you signed up for updates from <strong>Acme Inc.</strong></p>
+                <p style="margin:6px 0 0;">123 Business Rd, Business City, 12345</p>
+                <p style="margin:6px 0 0;"><a href="#" style="color:#6b7280;text-decoration:underline;">Unsubscribe</a> • <a href="#" style="color:#6b7280;text-decoration:underline;">Manage preferences</a></p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    `;
+
+    this.editor.setComponents(defaultEmail);
   }
 
   /* ========================================
@@ -515,7 +694,16 @@ export class EmailBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   importHTML(): void {
     if (this.editor) {
-      this.editor.runCommand('gjs-open-import-template');
+      this.editor.runCommand('import-template');
+    }
+  }
+
+  loadSampleTemplate(): void {
+    if (this.editor) {
+      if (confirm('Load sample template? This will replace your current work.')) {
+        this.loadDefaultTemplate();
+        this.showNotification('Sample template loaded successfully!');
+      }
     }
   }
 
@@ -622,5 +810,127 @@ export class EmailBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
         document.body.removeChild(notification);
       }, 300);
     }, 3000);
+  }
+
+  /* ========================================
+     Backend Integration Methods
+     ======================================== */
+  private loadTemplatesFromBackend(): void {
+    this.templateService.getAllTemplates().subscribe({
+      next: (templates) => {
+        this.templates = templates;
+        console.log('Loaded templates from backend:', templates.length);
+      },
+      error: (error) => {
+        console.error('Error loading templates:', error);
+        this.showNotification('⚠️ Backend not available. Working in offline mode.');
+      }
+    });
+  }
+
+  saveTemplateToBackend(): void {
+    if (!this.editor) return;
+
+    const templateName = prompt('Enter template name:', 'My Email Template');
+    if (!templateName) return;
+
+    const description = prompt('Enter template description (optional):', '');
+
+    const html = this.editor.getHtml();
+    const css = this.editor.getCss();
+    
+    // Get project data in serializable format
+    const projectData = this.editor.getProjectData();
+
+    // Convert styles array to object for backend compatibility
+    const stylesObject = projectData.styles && Array.isArray(projectData.styles) 
+      ? { rules: projectData.styles } 
+      : (projectData.styles || {});
+
+    const template: Template = {
+      name: templateName,
+      description: description || undefined,
+      html: html,
+      css: css,
+      components: projectData.pages?.[0]?.frames?.[0]?.component || projectData,
+      styles: stylesObject,
+      status: 'draft'
+    };
+
+    console.log('Saving template to backend:', template);
+
+    if (this.currentTemplateId) {
+      // Update existing template
+      this.templateService.updateTemplate(this.currentTemplateId, template).subscribe({
+        next: (updated) => {
+          this.showNotification('✅ Template updated successfully in backend!');
+          console.log('Template updated:', updated);
+        },
+        error: (error) => {
+          console.error('Error updating template:', error);
+          console.error('Error details:', error.error);
+          this.showNotification('❌ Failed to update template: ' + (error.error?.message || error.message));
+        }
+      });
+    } else {
+      // Create new template
+      this.templateService.createTemplate(template).subscribe({
+        next: (created) => {
+          this.currentTemplateId = created.id || null;
+          this.showNotification('✅ Template saved to backend successfully!');
+          console.log('Template created:', created);
+          this.loadTemplatesFromBackend();
+        },
+        error: (error) => {
+          console.error('Error saving template:', error);
+          console.error('Error details:', error.error);
+          this.showNotification('❌ Failed to save template: ' + (error.error?.message || error.message));
+        }
+      });
+    }
+  }
+
+  loadTemplateFromBackend(templateId: string): void {
+    this.templateService.getTemplate(templateId).subscribe({
+      next: (template) => {
+        if (this.editor) {
+          this.editor.setComponents(template.html);
+          this.editor.setStyle(template.css);
+          this.currentTemplateId = template.id || null;
+          this.showNotification('✅ Template loaded from backend!');
+          console.log('Template loaded:', template);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading template:', error);
+        console.error('Error details:', error.error);
+        this.showNotification('❌ Failed to load template: ' + (error.error?.message || error.message));
+      }
+    });
+  }
+
+  showTemplatesList(): void {
+    if (this.templates.length === 0) {
+      this.showNotification('⚠️ No templates found. Create your first template!');
+      return;
+    }
+
+    const templateList = this.templates
+      .map((t, i) => `${i + 1}. ${t.name} (${t.description || 'No description'})`)
+      .join('\n');
+
+    const selection = prompt(`Select a template to load:\n\n${templateList}\n\nEnter number:`);
+    
+    if (selection) {
+      const index = parseInt(selection, 10) - 1;
+      if (index >= 0 && index < this.templates.length) {
+        const template = this.templates[index];
+        if (template.id) {
+          this.loadTemplateFromBackend(template.id);
+        }
+      } else {
+        this.showNotification('❌ Invalid selection');
+      }
+    }
   }
 }
