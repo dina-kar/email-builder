@@ -328,14 +328,162 @@
   box-sizing: border-box;
   width: 100%;
   height: 100%;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  padding: 24px !important;
+}
+
+:host ::ng-deep .gjs-frame-wrapper {
+  max-width: 800px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
 }
 
 :host ::ng-deep .gjs-frame {
-  border: none !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  margin: 24px auto;
-  background-color: var(--white, #FFFFFF);
+  border: 2px solid #E0E0E0 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  margin: 0 auto !important;
+  background-color: var(--white, #FFFFFF) !important;
   opacity: 1 !important;
+  max-width: 100% !important;
+  transition: border-color 0.2s ease !important;
+}
+
+:host ::ng-deep .gjs-frame:hover {
+  border-color: var(--amber-accent, #FFC107) !important;
+}
+
+/* ========================================
+   Component Visibility & Selection Styles
+   ======================================== */
+
+/* Hover state for components inside canvas */
+:host ::ng-deep .gjs-frame .gjs-hovered {
+  outline: 2px dashed var(--amber-accent, #FFC107) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.1) !important;
+}
+
+/* Selected component - make it very visible */
+:host ::ng-deep .gjs-frame .gjs-selected {
+  outline: 3px solid var(--amber-accent, #FFC107) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2), 0 4px 12px rgba(255, 193, 7, 0.3) !important;
+  position: relative !important;
+}
+
+/* Add a subtle background highlight to selected elements */
+:host ::ng-deep .gjs-frame .gjs-selected::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(255, 193, 7, 0.05) !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* Drag placeholder styling - when dragging blocks */
+:host ::ng-deep .gjs-frame .gjs-dashed {
+  border: 3px dashed var(--amber-accent, #FFC107) !important;
+  background-color: rgba(255, 193, 7, 0.1) !important;
+  min-height: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+:host ::ng-deep .gjs-frame .gjs-dashed::after {
+  content: 'Drop component here' !important;
+  color: var(--amber-accent, #FFC107) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  text-align: center !important;
+  pointer-events: none !important;
+}
+
+/* Empty placeholder for newly added components */
+:host ::ng-deep .gjs-frame [data-gjs-type]:empty {
+  min-height: 40px !important;
+  background-color: rgba(255, 193, 7, 0.05) !important;
+  border: 2px dashed #E0E0E0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+
+:host ::ng-deep .gjs-frame [data-gjs-type]:empty::before {
+  content: 'Empty - Click to edit' !important;
+  color: var(--gray-text, #757575) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+}
+
+/* Highlight components with a subtle border in edit mode */
+:host ::ng-deep .gjs-frame [data-gjs-type] {
+  transition: all 0.2s ease !important;
+  position: relative !important;
+}
+
+/* Add padding indicator for table cells and containers */
+:host ::ng-deep .gjs-frame td[data-gjs-type],
+:host ::ng-deep .gjs-frame .cell[data-gjs-type] {
+  min-height: 30px !important;
+  min-width: 30px !important;
+}
+
+/* Toolbar/badge styling - make component names more visible */
+:host ::ng-deep .gjs-toolbar {
+  background-color: var(--amber-accent, #FFC107) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  padding: 4px !important;
+}
+
+:host ::ng-deep .gjs-toolbar-item {
+  background-color: transparent !important;
+  border: none !important;
+  color: var(--white, #FFFFFF) !important;
+  padding: 6px 8px !important;
+  border-radius: 3px !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+:host ::ng-deep .gjs-toolbar-item:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Component badge/label */
+:host ::ng-deep .gjs-badge {
+  background-color: var(--amber-accent, #FFC107) !important;
+  color: var(--white, #FFFFFF) !important;
+  padding: 4px 8px !important;
+  border-radius: 3px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.5px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Resizer handles - make them more visible */
+:host ::ng-deep .gjs-resizer-h {
+  background-color: var(--amber-accent, #FFC107) !important;
+  height: 8px !important;
+  width: 8px !important;
+  border-radius: 50% !important;
+  border: 2px solid var(--white, #FFFFFF) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+:host ::ng-deep .gjs-resizer-h:hover {
+  transform: scale(1.3) !important;
+  background-color: var(--amber-hover, #FFB300) !important;
 }
 
 /* Device buttons styling - Override default GrapesJS styles */
@@ -907,6 +1055,39 @@
   }
 }
 
+@keyframes componentDrop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseHighlight {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
+  }
+}
+
 .editor-panel-content {
   animation: fadeIn 0.3s ease;
+}
+
+/* Apply drop animation to newly added components */
+:host ::ng-deep .gjs-frame [data-gjs-type].gjs-selected:not(.gjs-hovered) {
+  animation: componentDrop 0.3s ease !important;
+}
+
+/* Pulse animation for first selection */
+:host ::ng-deep .gjs-frame .gjs-selected {
+  animation: pulseHighlight 1s ease-out !important;
 }
