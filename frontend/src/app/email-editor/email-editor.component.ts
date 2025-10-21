@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import grapesjs from 'grapesjs';
+import juice from 'juice';
 
 declare global {
   interface Window {
@@ -94,7 +95,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
               label: '1 Column',
               media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h18v18H3V3z"/></svg>',
               content: `<table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr><td style="padding: 20px;">Single column content</td></tr>
+                <tr><td style="padding: 20px;"><p style="margin: 0; font-size: 16px; color: #666666;">This is a single column layout.</p></td></tr>
               </table>`,
               category: 'Structure',
             },
@@ -104,8 +105,8 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
               media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h8v18H3V3zm10 0h8v18h-8V3z"/></svg>',
               content: `<table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td width="50%" style="padding: 20px; vertical-align: top;">Column 1</td>
-                  <td width="50%" style="padding: 20px; vertical-align: top;">Column 2</td>
+                  <td width="50%" style="padding: 20px; vertical-align: top;"><p style="margin: 0; font-size: 16px; color: #666666;">Column 1</p></td>
+                  <td width="50%" style="padding: 20px; vertical-align: top;"><p style="margin: 0; font-size: 16px; color: #666666;">Column 2</p></td>
                 </tr>
               </table>`,
               category: 'Structure',
@@ -116,9 +117,9 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
               media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h5v18H3V3zm7 0h4v18h-4V3zm6 0h5v18h-5V3z"/></svg>',
               content: `<table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td width="33.33%" style="padding: 15px; vertical-align: top;">Column 1</td>
-                  <td width="33.33%" style="padding: 15px; vertical-align: top;">Column 2</td>
-                  <td width="33.33%" style="padding: 15px; vertical-align: top;">Column 3</td>
+                  <td width="33.33%" style="padding: 15px; vertical-align: top;"><p style="margin: 0; font-size: 16px; color: #666666;">Column 1</p></td>
+                  <td width="33.33%" style="padding: 15px; vertical-align: top;"><p style="margin: 0; font-size: 16px; color: #666666;">Column 2</p></td>
+                  <td width="33.33%" style="padding: 15px; vertical-align: top;"><p style="margin: 0; font-size: 16px; color: #666666;">Column 3</p></td>
                 </tr>
               </table>`,
               category: 'Structure',
@@ -129,10 +130,10 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
               media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h3.5v18H3V3zm5 0h3.5v18H8V3zm5 0h3.5v18H13V3zm5 0h3.5v18H18V3z"/></svg>',
               content: `<table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td width="25%" style="padding: 10px; vertical-align: top;">Col 1</td>
-                  <td width="25%" style="padding: 10px; vertical-align: top;">Col 2</td>
-                  <td width="25%" style="padding: 10px; vertical-align: top;">Col 3</td>
-                  <td width="25%" style="padding: 10px; vertical-align: top;">Col 4</td>
+                  <td width="25%" style="padding: 10px; vertical-align: top;"><p style="margin: 0; font-size: 16px; color: #666666;">Col 1</p></td>
+                  <td width="25%" style="padding: 10px; vertical-align: top;"><p style="margin: 0; font-size: 16px; color: #666666;">Col 2</p></td>
+                  <td width="25%" style="padding: 10px; vertical-align: top;"><p style="margin: 0; font-size: 16px; color: #666666;">Col 3</p></td>
+                  <td width="25%" style="padding: 10px; vertical-align: top;"><p style="margin: 0; font-size: 16px; color: #666666;">Col 4</p></td>
                 </tr>
               </table>`,
               category: 'Structure',
@@ -143,8 +144,8 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
               media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h6v18H3V3zm8 0h10v18H11V3z"/></svg>',
               content: `<table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td width="30%" style="padding: 20px; vertical-align: top; background-color: #f9f9f9;">Sidebar</td>
-                  <td width="70%" style="padding: 20px; vertical-align: top;">Main Content</td>
+                  <td width="30%" style="padding: 20px; vertical-align: top; background-color: #f9f9f9;"><p style="margin: 0; font-size: 16px; color: #666666;">Sidebar</p></td>
+                  <td width="70%" style="padding: 20px; vertical-align: top;"><p style="margin: 0; font-size: 16px; color: #666666;">Main Content</p></td>
                 </tr>
               </table>`,
               category: 'Structure',
@@ -615,72 +616,210 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         appendTo: '#styles-container',
         sectors: [
           {
-            name: 'General',
+            name: 'Layout',
             open: true,
             properties: [
               {
-                type: 'stack',
-                property: 'background',
-                properties: [
-                  { name: 'Color', property: 'background-color' },
-                  { name: 'Image', property: 'background-image' },
+                name: 'Width',
+                property: 'width',
+                type: 'integer',
+                units: ['px', '%'],
+                min: 0,
+              } as any,
+              {
+                name: 'Height',
+                property: 'height',
+                type: 'integer',
+                units: ['px', 'auto'],
+                min: 0,
+              } as any,
+              {
+                name: 'Max Width',
+                property: 'max-width',
+                type: 'integer',
+                units: ['px', '%'],
+                min: 0,
+              } as any,
+              {
+                name: 'Display',
+                property: 'display',
+                type: 'select',
+                defaults: 'block',
+                options: [
+                  { id: 'block', value: 'block', name: 'Block' },
+                  { id: 'inline', value: 'inline', name: 'Inline' },
+                  { id: 'inline-block', value: 'inline-block', name: 'Inline Block' },
+                  { id: 'table', value: 'table', name: 'Table' },
+                  { id: 'table-cell', value: 'table-cell', name: 'Table Cell' },
+                  { id: 'none', value: 'none', name: 'None' },
                 ],
-              },
-              'display',
-              'opacity',
-              'cursor',
+              } as any,
             ],
           },
           {
-            name: 'Dimension',
+            name: 'Spacing',
             open: false,
             properties: [
-              'width',
-              'height',
-              'max-width',
-              'min-height',
-              'margin',
               'padding',
+              'margin',
             ],
           },
           {
             name: 'Typography',
             open: false,
             properties: [
-              'font-family',
+              {
+                name: 'Font Family',
+                property: 'font-family',
+                type: 'select',
+                defaults: 'Arial, sans-serif',
+                options: [
+                  { id: 'arial', value: 'Arial, sans-serif', name: 'Arial' },
+                  { id: 'helvetica', value: "'Helvetica Neue', Helvetica, sans-serif", name: 'Helvetica' },
+                  { id: 'times', value: "'Times New Roman', Times, serif", name: 'Times New Roman' },
+                  { id: 'georgia', value: 'Georgia, serif', name: 'Georgia' },
+                  { id: 'courier', value: "'Courier New', Courier, monospace", name: 'Courier New' },
+                  { id: 'verdana', value: 'Verdana, sans-serif', name: 'Verdana' },
+                  { id: 'tahoma', value: 'Tahoma, sans-serif', name: 'Tahoma' },
+                  { id: 'trebuchet', value: "'Trebuchet MS', sans-serif", name: 'Trebuchet MS' },
+                ],
+              } as any,
               'font-size',
-              'font-weight',
-              'letter-spacing',
+              {
+                name: 'Font Weight',
+                property: 'font-weight',
+                type: 'select',
+                defaults: 'normal',
+                options: [
+                  { id: 'normal', value: 'normal', name: 'Normal' },
+                  { id: 'bold', value: 'bold', name: 'Bold' },
+                  { id: '100', value: '100', name: 'Thin (100)' },
+                  { id: '300', value: '300', name: 'Light (300)' },
+                  { id: '400', value: '400', name: 'Regular (400)' },
+                  { id: '500', value: '500', name: 'Medium (500)' },
+                  { id: '600', value: '600', name: 'Semi Bold (600)' },
+                  { id: '700', value: '700', name: 'Bold (700)' },
+                  { id: '900', value: '900', name: 'Black (900)' },
+                ],
+              } as any,
               'color',
               'line-height',
+              'letter-spacing',
               'text-align',
               'text-decoration',
-              'text-shadow',
+              {
+                name: 'Font Style',
+                property: 'font-style',
+                type: 'radio',
+                defaults: 'normal',
+                options: [
+                  { id: 'normal', value: 'normal', name: 'Normal' },
+                  { id: 'italic', value: 'italic', name: 'Italic' },
+                ],
+              } as any,
+              {
+                name: 'Text Transform',
+                property: 'text-transform',
+                type: 'select',
+                defaults: 'none',
+                options: [
+                  { id: 'none', value: 'none', name: 'None' },
+                  { id: 'uppercase', value: 'uppercase', name: 'Uppercase' },
+                  { id: 'lowercase', value: 'lowercase', name: 'Lowercase' },
+                  { id: 'capitalize', value: 'capitalize', name: 'Capitalize' },
+                ],
+              } as any,
             ],
           },
           {
-            name: 'Decorations',
+            name: 'Background',
             open: false,
             properties: [
-              'border-radius',
+              'background-color',
+              {
+                name: 'Background Image',
+                property: 'background-image',
+                type: 'text',
+                defaults: 'none',
+              } as any,
+              {
+                name: 'Background Repeat',
+                property: 'background-repeat',
+                type: 'select',
+                defaults: 'repeat',
+                options: [
+                  { id: 'repeat', value: 'repeat', name: 'Repeat' },
+                  { id: 'repeat-x', value: 'repeat-x', name: 'Repeat X' },
+                  { id: 'repeat-y', value: 'repeat-y', name: 'Repeat Y' },
+                  { id: 'no-repeat', value: 'no-repeat', name: 'No Repeat' },
+                ],
+              } as any,
+              {
+                name: 'Background Position',
+                property: 'background-position',
+                type: 'select',
+                defaults: 'left top',
+                options: [
+                  { id: 'left-top', value: 'left top', name: 'Left Top' },
+                  { id: 'left-center', value: 'left center', name: 'Left Center' },
+                  { id: 'left-bottom', value: 'left bottom', name: 'Left Bottom' },
+                  { id: 'center-top', value: 'center top', name: 'Center Top' },
+                  { id: 'center-center', value: 'center center', name: 'Center Center' },
+                  { id: 'center-bottom', value: 'center bottom', name: 'Center Bottom' },
+                  { id: 'right-top', value: 'right top', name: 'Right Top' },
+                  { id: 'right-center', value: 'right center', name: 'Right Center' },
+                  { id: 'right-bottom', value: 'right bottom', name: 'Right Bottom' },
+                ],
+              } as any,
+              {
+                name: 'Background Size',
+                property: 'background-size',
+                type: 'select',
+                defaults: 'auto',
+                options: [
+                  { id: 'auto', value: 'auto', name: 'Auto' },
+                  { id: 'cover', value: 'cover', name: 'Cover' },
+                  { id: 'contain', value: 'contain', name: 'Contain' },
+                ],
+              } as any,
+            ],
+          },
+          {
+            name: 'Border',
+            open: false,
+            properties: [
               'border',
-              'box-shadow',
+              'border-radius',
             ],
           },
           {
-            name: 'Flex',
+            name: 'Table Styles',
             open: false,
             properties: [
-              'flex-direction',
-              'flex-wrap',
-              'justify-content',
-              'align-items',
-              'align-content',
-              'order',
-              'flex-basis',
-              'flex-grow',
-              'flex-shrink',
-              'align-self',
+              {
+                name: 'Vertical Align',
+                property: 'vertical-align',
+                type: 'select',
+                defaults: 'top',
+                options: [
+                  { id: 'top', value: 'top', name: 'Top' },
+                  { id: 'middle', value: 'middle', name: 'Middle' },
+                  { id: 'bottom', value: 'bottom', name: 'Bottom' },
+                  { id: 'baseline', value: 'baseline', name: 'Baseline' },
+                ],
+              } as any,
+              {
+                name: 'White Space',
+                property: 'white-space',
+                type: 'select',
+                defaults: 'normal',
+                options: [
+                  { id: 'normal', value: 'normal', name: 'Normal' },
+                  { id: 'nowrap', value: 'nowrap', name: 'No Wrap' },
+                  { id: 'pre', value: 'pre', name: 'Pre' },
+                  { id: 'pre-wrap', value: 'pre-wrap', name: 'Pre Wrap' },
+                ],
+              } as any,
             ],
           },
         ],
@@ -723,34 +862,40 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       },
     });
 
-    // Import template command
+    // Import template command (using GrapeJS modal)
     this.editor.Commands.add('import-template', {
       run: (editor: any) => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.html';
-        input.onchange = (e: any) => {
-          const file = e.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (event: any) => {
-              const htmlContent = event.target.result;
-              
-              const parser = new DOMParser();
-              const doc = parser.parseFromString(htmlContent, 'text/html');
-              
-              const bodyContent = doc.body.innerHTML;
-              const styleContent = doc.querySelector('style')?.textContent || '';
-              
-              editor.setComponents(bodyContent);
-              editor.setStyle(styleContent);
-              
+        const modal = editor.Modal;
+        modal.setTitle('Import Email Template');
+        modal.setContent(`
+          <div style="padding: 20px;">
+            <p style="margin-bottom: 10px; color: #374151;">Paste your email template HTML code here:</p>
+            <textarea id="import-html" style="width: 100%; height: 300px; padding: 10px; border: 1px solid #E5E7EB; border-radius: 4px; font-family: monospace; resize: vertical;" placeholder="Paste your HTML template here..."></textarea>
+            <div style="margin-top: 20px; text-align: right;">
+              <button id="cancel-import-btn" style="padding: 8px 16px; background-color: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Cancel</button>
+              <button id="import-btn" style="padding: 8px 16px; background-color: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer;">Import Template</button>
+            </div>
+          </div>
+        `);
+        modal.open();
+
+        // Handle import button click
+        setTimeout(() => {
+          document.getElementById('cancel-import-btn')?.addEventListener('click', () => {
+            modal.close();
+          });
+          
+          document.getElementById('import-btn')?.addEventListener('click', () => {
+            const html = (document.getElementById('import-html') as HTMLTextAreaElement)?.value;
+            if (html && html.trim()) {
+              editor.setComponents(html);
+              modal.close();
               alert('✅ Template imported successfully!');
-            };
-            reader.readAsText(file);
-          }
-        };
-        input.click();
+            } else {
+              alert('⚠️ Please paste some HTML code first.');
+            }
+          });
+        }, 100);
       },
     });
 
@@ -764,13 +909,14 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       },
     });
 
-    // Export template command
+    // Export template command (use juice only for export)
     this.editor.Commands.add('export-template', {
       run: (editor: any) => {
         const html = editor.getHtml();
         const css = editor.getCss();
         
-        const fullHtml = `<!DOCTYPE html>
+        // Create the full HTML with styles in head
+        let fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -783,6 +929,14 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   ${html}
 </body>
 </html>`;
+
+        // Use juice to inline CSS for email compatibility
+        try {
+          fullHtml = juice(fullHtml);
+        } catch (error) {
+          console.error('Error inlining styles:', error);
+          alert('⚠️ Warning: Could not inline all styles. Exported with <style> tag instead.');
+        }
         
         const blob = new Blob([fullHtml], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
@@ -792,7 +946,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         link.click();
         URL.revokeObjectURL(url);
         
-        alert('✅ Email template exported successfully!');
+        alert('✅ Email template exported successfully with inlined CSS!');
       },
     });
   }

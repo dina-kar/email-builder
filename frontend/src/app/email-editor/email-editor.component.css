@@ -1012,24 +1012,133 @@
   .sidebar-right {
     width: 280px;
   }
+
+  /* Make blocks single column on medium screens */
+  ::ng-deep .gjs-blocks-c {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
+  /* Hide some toolbar buttons on mobile */
   .toolbar-center {
     display: none;
   }
-  
-  .sidebar-left,
-  .sidebar-right {
-    width: 240px;
+
+  /* Reduce toolbar button text */
+  .toolbar-right .btn:not(.btn-primary) span {
+    display: none;
+  }
+
+  .toolbar-right {
+    gap: var(--spacing-1);
+  }
+
+  .toolbar-left h1 {
+    font-size: 14px;
   }
   
+  /* Make sidebars overlay or collapsible */
+  .sidebar-left,
+  .sidebar-right {
+    width: 260px;
+  }
+  
+  /* Single column blocks layout */
+  ::ng-deep .gjs-blocks-c {
+    grid-template-columns: 1fr;
+    padding: var(--spacing-2);
+  }
+
+  ::ng-deep .gjs-block {
+    min-height: 70px;
+    padding: var(--spacing-2);
+  }
+
+  ::ng-deep .gjs-block__media {
+    width: 32px;
+    height: 32px;
+  }
+
+  ::ng-deep .gjs-block__media svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  ::ng-deep .gjs-block-label {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Stack layout vertically on very small screens */
   .editor-main {
     flex-direction: column;
   }
-  
+
   .sidebar-left {
     width: 100%;
-    max-height: 200px;
+    max-height: 250px;
+    border-right: none;
+    border-bottom: 1px solid var(--theme-border-gray);
+  }
+
+  .sidebar-right {
+    width: 100%;
+    max-height: 250px;
+    border-left: none;
+    border-top: 1px solid var(--theme-border-gray);
+  }
+
+  .canvas-area {
+    flex: 1;
+    min-height: 300px;
+  }
+
+  /* Adjust toolbar for very small screens */
+  .toolbar-top {
+    padding: 0 var(--spacing-2);
+    height: 48px;
+  }
+
+  .toolbar-right .btn {
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: 12px;
+  }
+
+  .toolbar-right .btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Further compress blocks on mobile */
+  ::ng-deep .gjs-blocks-c {
+    padding: var(--spacing-1);
+    gap: var(--spacing-1);
+  }
+
+  ::ng-deep .gjs-block {
+    min-height: 60px;
+    padding: var(--spacing-1);
+  }
+
+  ::ng-deep .gjs-block__media {
+    width: 28px;
+    height: 28px;
+    margin-bottom: var(--spacing-1);
+  }
+
+  ::ng-deep .gjs-block__media svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  ::ng-deep .gjs-block-label {
+    font-size: 9px;
+  }
+
+  ::ng-deep .gjs-block-category .gjs-title {
+    font-size: 10px;
+    padding: var(--spacing-1) var(--spacing-2);
   }
 }
