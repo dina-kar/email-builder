@@ -1,5 +1,5 @@
 {
-  "name": "email-editor-frontend",
+  "name": "c1x-email-builder",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -22,22 +22,15 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^20.3.4",
-    "@angular/cdk": "^20.2.8",
     "@angular/common": "^20.3.0",
     "@angular/compiler": "^20.3.0",
     "@angular/core": "^20.3.0",
     "@angular/forms": "^20.3.0",
-    "@angular/material": "^20.2.8",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
-    "grapesjs": "^0.21.10",
-    "grapesjs-plugin-ckeditor": "^1.0.1",
-    "grapesjs-preset-newsletter": "^1.0.2",
-    "juice": "^11.0.3",
+    "grapesjs": "^0.21.13",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.15.0"
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@angular/build": "^20.3.4",

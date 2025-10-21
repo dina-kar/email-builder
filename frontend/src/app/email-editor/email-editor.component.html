@@ -1,0 +1,123 @@
+<div class="editor-container">
+  <!-- Top Toolbar -->
+  <div class="toolbar-top">
+    <div class="toolbar-left">
+      <h1 style="margin: 0; font-size: 18px; font-weight: 600; color: var(--theme-text-heading);">
+        C1X Email Builder
+      </h1>
+    </div>
+    
+    <div class="toolbar-center">
+      <!-- Undo/Redo -->
+      <button class="btn btn-ghost btn-icon" (click)="undo()" title="Undo (Ctrl+Z)">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+      </button>
+      <button class="btn btn-ghost btn-icon" (click)="redo()" title="Redo (Ctrl+Shift+Z)">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/></svg>
+      </button>
+      
+      <div style="width: 1px; height: 24px; background: var(--theme-border-gray); margin: 0 8px;"></div>
+      
+      <!-- Device Selector -->
+      <button class="btn btn-ghost btn-icon" (click)="setDeviceDesktop()" title="Desktop View">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/></svg>
+      </button>
+      <button class="btn btn-ghost btn-icon" (click)="setDeviceTablet()" title="Tablet View">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 0H6C4.34 0 3 1.34 3 3v18c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V3c0-1.66-1.34-3-3-3zm-4 22h-4v-1h4v1zm5.25-3H4.75V3h14.5v16z"/></svg>
+      </button>
+      <button class="btn btn-ghost btn-icon" (click)="setDeviceMobile()" title="Mobile View">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 1h-8C6.12 1 5 2.12 5 3.5v17C5 21.88 6.12 23 7.5 23h8c1.38 0 2.5-1.12 2.5-2.5v-17C18 2.12 16.88 1 15.5 1zm-4 21c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5-4H7V4h9v14z"/></svg>
+      </button>
+      
+      <div style="width: 1px; height: 24px; background: var(--theme-border-gray); margin: 0 8px;"></div>
+      
+      <!-- View Controls -->
+      <button class="btn btn-ghost btn-icon" (click)="preview()" title="Preview">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </button>
+      <button class="btn btn-ghost btn-icon" (click)="fullscreen()" title="Fullscreen">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+      </button>
+    </div>
+    
+    <div class="toolbar-right">
+      <button class="btn btn-ghost" (click)="clearCanvas()" title="Clear Canvas">
+        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path fill="currentColor" d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12z"/></svg>
+        Clear
+      </button>
+      <button class="btn btn-ghost" (click)="importTemplate()" title="Import Template">
+        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+        Import
+      </button>
+      <button class="btn btn-ghost" (click)="exportTemplate()" title="Export Template">
+        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path fill="currentColor" d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
+        Export
+      </button>
+      <button class="btn btn-primary" (click)="save()" title="Save (Ctrl+S)">
+        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path fill="currentColor" d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+        Save
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="editor-main">
+    <!-- Left Sidebar -->
+    <div class="sidebar-left">
+      <div class="search-bar">
+        <div class="search-wrapper">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Search blocks..." 
+            id="block-search"
+            (input)="onSearchInput($event)"
+          >
+          <button 
+            class="search-clear" 
+            id="search-clear"
+            [class.visible]="searchTerm()"
+            (click)="clearSearch()"
+          >
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          </button>
+        </div>
+      </div>
+      
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" data-tab="components">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
+          Blocks
+        </button>
+        <button class="sidebar-tab" data-tab="layers">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l-5.5 9h11L12 2zm0 3.84L13.93 9h-3.87L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5s2.01 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5zm0 7c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5zM3 21.5h8v-8H3v8zm2-6h4v4H5v-4z"/></svg>
+          Layers
+        </button>
+      </div>
+      
+      <div class="tab-content active" id="components-tab">
+        <div id="blocks-container"></div>
+      </div>
+      <div class="tab-content" id="layers-tab">
+        <div id="layers-container"></div>
+      </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="canvas-area">
+      <div id="gjs"></div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar-right">
+      <div class="section-header">
+        <span>Properties</span>
+      </div>
+      <div id="traits-container" class="sidebar-section"></div>
+      <div class="section-header">
+        <span>Styles</span>
+      </div>
+      <div id="styles-container" class="sidebar-section"></div>
+    </div>
+  </div>
+</div>

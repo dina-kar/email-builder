@@ -1,14 +1,8 @@
 import { Routes } from '@angular/router';
-import { EmailBuilderComponent } from './email-builder/email-builder.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: EmailBuilderComponent
-  },
-  {
-    path: '**',
-    redirectTo: ''
+    loadComponent: () => import('./email-editor/email-editor.component').then(m => m.EmailEditorComponent)
   }
 ];
-

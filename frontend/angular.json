@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "email-editor-frontend": {
+    "c1x-email-builder": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -14,9 +14,6 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -25,11 +22,8 @@
               }
             ],
             "styles": [
-              "src/styles.css",
-              "./node_modules/grapesjs/dist/css/grapes.min.css"
-            ],
-            "scripts": [
-              "./node_modules/grapesjs/dist/grapes.min.js"
+              "node_modules/grapesjs/dist/css/grapes.min.css",
+              "src/styles.css"
             ]
           },
           "configurations": {
@@ -37,13 +31,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2MB",
-                  "maximumError": "4MB"
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "10kB",
-                  "maximumError": "20kB"
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
                 }
               ],
               "outputHashing": "all"
@@ -60,10 +54,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "email-editor-frontend:build:production"
+              "buildTarget": "c1x-email-builder:build:production"
             },
             "development": {
-              "buildTarget": "email-editor-frontend:build:development"
+              "buildTarget": "c1x-email-builder:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -74,10 +68,6 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               {
@@ -86,15 +76,11 @@
               }
             ],
             "styles": [
-              "src/styles.css",
-              "./node_modules/grapesjs/dist/css/grapes.min.css"
+              "src/styles.css"
             ]
           }
         }
       }
     }
-  },
-  "cli": {
-    "analytics": "f0f5d16c-0d3f-4293-951c-c2da3b10e785"
   }
 }
