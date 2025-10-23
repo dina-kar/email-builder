@@ -282,7 +282,7 @@
   background-color: var(--theme-bg-white);
   padding: var(--spacing-4);
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-3);
   justify-content: center;
   height: 100%;
@@ -339,7 +339,7 @@
   background-color: var(--theme-bg-white);
   border: 2px solid var(--theme-border-gray);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-3);
+  padding: var(--spacing-1);
   min-height: 85px;
   display: flex;
   flex-direction: column;
@@ -407,6 +407,7 @@
 ::ng-deep .gjs-layer {
   background-color: transparent;
   border-bottom: 1px solid var(--theme-border-gray);
+  overflow: auto;
 }
 
 ::ng-deep .gjs-layer-item {
@@ -555,7 +556,7 @@
 }
 
 /* Spectrum color picker container */
-::ng-deep .sp-container {
+::ng-deep .sp-picker-container {
   z-index: 99999 !important;
   position: fixed !important;
   right: 12px !important;
@@ -563,7 +564,6 @@
   top: auto !important;
   left: auto !important;
 }
-
 /* Number inputs with increment/decrement */
 ::ng-deep .gjs-field-integer .gjs-field-arrows {
   display: flex;
@@ -1141,4 +1141,132 @@
     font-size: 10px;
     padding: var(--spacing-1) var(--spacing-2);
   }
+}
+
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--theme-bg-white);
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 100%;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--theme-border-gray);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--theme-text-heading);
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--theme-text-body);
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--theme-border-gray);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--theme-text-body);
+  transition: all 0.2s ease;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--theme-amber-primary);
+  box-shadow: 0 0 0 3px var(--theme-amber-light);
+}
+
+.form-textarea {
+  resize: vertical;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid var(--theme-border-gray);
+}
+
+/* ============================================
+   TEMPLATE INFO STYLES
+   ============================================ */
+.template-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.save-status {
+  font-size: 12px;
+  color: var(--theme-text-muted);
+}
+
+.save-status.saving {
+  color: var(--theme-amber-primary);
+  font-weight: 500;
 }

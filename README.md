@@ -83,11 +83,7 @@ cd backend
 pnpm start:dev
 ```
 
-## 🔒 Security
 
-- ✅ Updated CKEditor from 4.21.0 to **4.25.1-lts** (latest secure version)
-- Removed vulnerable dependencies
-- Following security best practices
 
 ## 📐 Layout Configuration
 

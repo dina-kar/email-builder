@@ -1,10 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './filters/http-exception.filter';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
+
+  // Increase payload size limit for large template data (50MB)
+  app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
   // Enable CORS
   app.enableCors({
@@ -13,12 +19,18 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Global exception filter
+  app.useGlobalFilters(new AllExceptionsFilter());
+
   // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
 

@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TemplatesModule } from './templates/templates.module';
 import { S3Module } from './s3/s3.module';
 import { Template } from './templates/entities/template.entity';
@@ -31,7 +29,7 @@ import { Template } from './templates/entities/template.entity';
     TemplatesModule,
     S3Module,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

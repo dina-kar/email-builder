@@ -50,7 +50,11 @@ export class TemplatesController {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
-    return this.templatesService.uploadAsset(file);
+    const result = await this.templatesService.uploadAsset(file);
+    // Return in GrapesJS expected format
+    return {
+      data: [result.url],
+    };
   }
 
   @Post('upload/thumbnail')

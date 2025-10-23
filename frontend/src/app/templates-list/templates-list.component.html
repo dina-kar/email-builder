@@ -1,0 +1,102 @@
+<div class="templates-container">
+  <header class="templates-header">
+    <div class="header-content">
+      <h1>C1X Email Builder</h1>
+      <p class="subtitle">Create, manage, and edit your email templates</p>
+    </div>
+    <button class="btn-primary" (click)="createNewTemplate()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      New Template
+    </button>
+  </header>
+
+  <div class="templates-content">
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading templates...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error()" class="error-state">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4M12 16h.01"/>
+      </svg>
+      <p>{{ error() }}</p>
+      <button class="btn-secondary" (click)="loadTemplates()">Try Again</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading() && !error() && templates().length === 0" class="empty-state">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <path d="M14 2v6h6M12 18v-6M9 15h6"/>
+      </svg>
+      <h2>No templates yet</h2>
+      <p>Get started by creating your first email template</p>
+      <button class="btn-primary" (click)="createNewTemplate()">Create Template</button>
+    </div>
+
+    <!-- Templates Grid -->
+    <div *ngIf="!loading() && !error() && templates().length > 0" class="templates-grid">
+      <div *ngFor="let template of templates()" class="template-card">
+        <div class="template-thumbnail">
+          <div class="thumbnail-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 4h16v16H4z"/>
+              <path d="M9 9h6M9 13h6M9 17h3"/>
+            </svg>
+          </div>
+          <div class="template-actions">
+            <button class="action-btn" (click)="editTemplate(template.id)" title="Edit">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+            <button class="action-btn" (click)="duplicateTemplate(template)" title="Duplicate">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </button>
+            <button class="action-btn delete" (click)="deleteTemplate(template.id, template.name)" title="Delete">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <div class="template-info">
+          <div class="template-header">
+            <h3 class="template-name">{{ template.name }}</h3>
+            <span [class]="'status-badge ' + getStatusClass(template.status || 'draft')">
+              {{ template.status || 'draft' }}
+            </span>
+          </div>
+          
+          <p class="template-description" *ngIf="template.description">
+            {{ template.description }}
+          </p>
+          <p class="template-description empty" *ngIf="!template.description">
+            No description provided
+          </p>
+          
+          <div class="template-meta">
+            <span class="meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <path d="M16 2v4M8 2v4M3 10h18"/>
+              </svg>
+              {{ formatDate(template.updatedAt) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
