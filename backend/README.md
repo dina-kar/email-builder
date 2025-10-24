@@ -59,93 +59,16 @@ $ pnpm run test:cov
 
 ## Deployment
 
-This project is configured for **serverless deployment on Vercel**.
+When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
 
-### Quick Start
-
-```bash
-# 1. Build the project
-pnpm run build
-
-# 2. Deploy to Vercel
-vercel --prod
-```
-
-### Deployment Options
-
-#### Option 1: GitHub Integration (Recommended)
-1. Push your code to GitHub
-2. Go to [vercel.com/new](https://vercel.com/new)
-3. Import your repository
-4. Add environment variables in Project Settings
-5. Deploy
-
-#### Option 2: CLI Deployment
-```bash
-vercel --prod
-```
-
-#### Option 3: Automated Deployment Script
-```bash
-chmod +x deploy-vercel.sh
-./deploy-vercel.sh
-```
-
-### Environment Variables Required
-
-Add these to your Vercel project settings:
-
-```env
-DB_HOST=your-database-host
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=your-password
-DB_DATABASE=email_builder
-
-AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=your-access-key
-AWS_SECRET_ACCESS_KEY=your-secret-key
-AWS_S3_BUCKET=your-bucket
-AWS_ENDPOINT=your-s3-endpoint
-AWS_S3_FORCE_PATH_STYLE=true
-
-NODE_ENV=production
-```
-
-### Documentation
-
-- **📖 [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)** - Complete deployment guide
-- **✅ [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)** - Pre-deployment checklist
-- **⚙️ [.env.vercel.example](./.env.vercel.example)** - Environment variables template
-
-### Architecture
-
-The project uses a serverless handler (`api/index.ts`) that:
-- ✅ Caches NestJS instance for optimal cold start performance
-- ✅ Supports all NestJS middleware and pipes
-- ✅ Handles CORS, validation, and error filtering
-- ✅ Works with TypeORM for database operations
-- ✅ Integrates with AWS S3 for file storage
-
-### Performance
-
-- **Cold Start**: ~3-5 seconds (first request only)
-- **Warm Requests**: ~50-100ms
-- **Memory**: 1GB (configurable in `vercel.json`)
-- **Timeout**: 60 seconds (configurable)
-
-### Local Testing
+If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
 
 ```bash
-# Development
-pnpm run start:dev
-
-# Production build
-pnpm run build
-pnpm run start:prod
+$ pnpm install -g @nestjs/mau
+$ mau deploy
 ```
 
-For more details, see [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
 ## Resources
 
