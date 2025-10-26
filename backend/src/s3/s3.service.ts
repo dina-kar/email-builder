@@ -21,17 +21,17 @@ export class S3Service {
 
     const endpoint = this.configService.get<string>('AWS_ENDPOINT') || 'http://localhost:4566';
     const region = this.configService.get<string>('AWS_REGION') || 'us-east-1';
-    const forcePathStyle =
-      this.configService.get<string>('AWS_S3_FORCE_PATH_STYLE') === 'true';
+    const forcePathStyle = this.configService.get<string>('AWS_S3_FORCE_PATH_STYLE') === 'true';
 
     this.s3Client = new S3Client({
+      forcePathStyle: forcePathStyle,
       region: region,
       endpoint: endpoint,
       credentials: {
         accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY_ID') || 'test',
         secretAccessKey: this.configService.get<string>('AWS_SECRET_ACCESS_KEY') || 'test',
       },
-      forcePathStyle: forcePathStyle,
+      
     });
 
     this.logger.log(
@@ -55,12 +55,12 @@ export class S3Service {
         Key: key,
         Body: file.buffer,
         ContentType: file.mimetype,
-        ACL: 'public-read',
       });
 
       await this.s3Client.send(command);
 
-      const url = this.getPublicUrl(key);
+      // Generate signed URL for private bucket access
+      const url = await this.getSignedUrl(key);
       this.logger.log(`File uploaded successfully: ${key}`);
 
       return { key, url };
@@ -94,12 +94,12 @@ export class S3Service {
         Key: key,
         Body: buffer,
         ContentType: mimeType,
-        ACL: 'public-read',
       });
 
       await this.s3Client.send(command);
 
-      const url = this.getPublicUrl(key);
+      // Generate signed URL for private bucket access
+      const url = await this.getSignedUrl(key);
       this.logger.log(`Base64 image uploaded successfully: ${key}`);
 
       return { key, url };
