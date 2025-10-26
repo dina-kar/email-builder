@@ -457,6 +457,22 @@
   border-left: 1px solid var(--theme-border-gray);
 }
 
+/* Hide structural table/tr/td elements in layers panel */
+::ng-deep .gjs-layer[data-gjs-type="table"],
+::ng-deep .gjs-layer[data-gjs-type="row"],
+::ng-deep .gjs-layer[data-gjs-type="cell"],
+::ng-deep .gjs-layer:has(> .gjs-layer-item[title="table"]),
+::ng-deep .gjs-layer:has(> .gjs-layer-item[title="tr"]),
+::ng-deep .gjs-layer:has(> .gjs-layer-item[title="td"]) {
+  display: none !important;
+}
+
+/* Show only meaningful components in layers */
+::ng-deep .gjs-layer[data-gjs-type="email-column-div"],
+::ng-deep .gjs-layer[data-gjs-type="flexible-columns"] {
+  display: block !important;
+}
+
 /* ============================================
    STYLE MANAGER STYLES
    ============================================ */
@@ -962,6 +978,52 @@
 
 ::ng-deep .gjs-toolbar-item:hover {
   opacity: 0.8;
+}
+
+/* ============================================
+   COLUMN DROP ZONE STYLES
+   ============================================ */
+/* Visual feedback for drop zones in columns */
+::ng-deep .gjs-cv-canvas .email-column > table > tr > td {
+  min-height: 80px;
+  border: 2px dashed transparent;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+::ng-deep .gjs-cv-canvas .email-column > table > tr > td:empty::before {
+  content: 'Drop content here';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #9ca3af;
+  font-size: 13px;
+  font-style: italic;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
+
+::ng-deep .gjs-cv-canvas .email-column > table > tr > td.gjs-hovered,
+::ng-deep .gjs-cv-canvas .email-column > table > tr > td.gjs-selected {
+  border-color: rgba(245, 158, 11, 0.3);
+  background-color: rgba(245, 158, 11, 0.03);
+}
+
+/* Highlight column when dragging over it */
+::ng-deep .gjs-cv-canvas .email-column.gjs-hovered {
+  outline: 2px dashed var(--theme-amber-primary) !important;
+  outline-offset: 2px;
+}
+
+/* Don't show hover/select state for structural tables */
+::ng-deep .gjs-cv-canvas table[role="presentation"].gjs-hovered {
+  outline: none !important;
+}
+
+::ng-deep .gjs-cv-canvas table[role="presentation"].gjs-selected {
+  outline: none !important;
 }
 
 /* ============================================

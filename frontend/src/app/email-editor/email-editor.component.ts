@@ -7,6 +7,8 @@ import juice from 'juice';
 import { TemplateService, Template } from '../services/template.service';
 import { environment } from '../../environments/environment';
 
+import { ALL_EMAIL_BLOCKS, EMAIL_BLOCKS } from './email-blocks.config';
+
 declare global {
   interface Window {
     editor: any;
@@ -117,6 +119,9 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initializeEditor(): void {
+    // Remove Email Container block from the left panel; we'll load it by default
+    const blocks = ALL_EMAIL_BLOCKS.filter(b => b.id !== 'email-container');
+
     this.editor = grapesjs.init({
       container: '#gjs',
       height: '100%',
@@ -182,707 +187,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       blockManager: {
         appendTo: '#blocks-container',
-        blocks: [
-          // ========== STRUCTURE BLOCKS (Hybrid / Fluid) ==========
-          {
-            id: 'email-container',
-            label: 'Email Container',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M2 20h20V4H2v16Zm2-14h16v12H4V6Z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;">
-    <tr>
-      <td align="center" style="padding:20px;">
-        <!--[if mso]>
-        <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="600">
-          <tr><td>
-        <![endif]-->
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff;">
-          <tr><td style="padding: 32px 24px; line-height:1.4; font-family: Arial, sans-serif; color:#111827;"></td></tr>
-        </table>
-        <!--[if mso]>
-          </td></tr>
-        </table>
-        <![endif]-->
-      </td>
-    </tr>
-  </table>`,
-            category: 'Structure',
-          },
-          {
-            id: '1-column',
-            label: '1 Column',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h18v18H3V3z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center" style="padding:0 20px;">
-        <!--[if mso]><table role="presentation" width="600"><tr><td><![endif]-->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
-          <tr><td style="padding:20px;">
-            <p style="margin:0; font-size:16px; color:#374151; font-family:Arial, sans-serif; line-height:1.6;">This is a single column layout.</p>
-          </td></tr>
-        </table>
-        <!--[if mso]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </table>`,
-            category: 'Structure',
-          },
-          {
-            id: '2-columns',
-            label: '2 Columns',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h8v18H3V3zm10 0h8v18h-8V3z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center" style="padding:0 20px; font-size:0;">
-        <!--[if mso]>
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0">
-          <tr><td width="300" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:300px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr><td style="padding:20px; vertical-align:top;">
-              <p style="margin:0; font-size:16px; color:#374151; font-family:Arial, sans-serif; line-height:1.6;">Column 1</p>
-            </td></tr>
-          </table>
-        </div>
-        <!--[if mso]></td><td width="300" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:300px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr><td style="padding:20px; vertical-align:top;">
-              <p style="margin:0; font-size:16px; color:#374151; font-family:Arial, sans-serif; line-height:1.6;">Column 2</p>
-            </td></tr>
-          </table>
-        </div>
-        <!--[if mso]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </table>`,
-            category: 'Structure',
-          },
-          {
-            id: '3-columns',
-            label: '3 Columns',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h5v18H3V3zm7 0h4v18h-4V3zm6 0h5v18h-5V3z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center" style="padding:0 16px; font-size:0;">
-        <!--[if mso]>
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0">
-          <tr>
-            <td width="200" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:200px;">
-          <table role="presentation" width="100%"><tr><td style="padding:15px;">
-            <p style="margin:0; font-size:16px; color:#374151; font-family:Arial, sans-serif;">Column 1</p>
-          </td></tr></table>
-        </div>
-        <!--[if mso]></td><td width="200" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:200px;">
-          <table role="presentation" width="100%"><tr><td style="padding:15px;">
-            <p style="margin:0; font-size:16px; color:#374151; font-family:Arial, sans-serif;">Column 2</p>
-          </td></tr></table>
-        </div>
-        <!--[if mso]></td><td width="200" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:200px;">
-          <table role="presentation" width="100%"><tr><td style="padding:15px;">
-            <p style="margin:0; font-size:16px; color:#374151; font-family:Arial, sans-serif;">Column 3</p>
-          </td></tr></table>
-        </div>
-        <!--[if mso]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </table>`,
-            category: 'Structure',
-          },
-          {
-            id: '4-columns',
-            label: '4 Columns',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h3.5v18H3V3zm5 0h3.5v18H8V3zm5 0h3.5v18H13V3zm5 0h3.5v18H18V3z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center" style="padding:0 12px; font-size:0;">
-        <!--[if mso]><table role="presentation" width="600"><tr>
-          <td width="150" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:150px;">
-          <table role="presentation" width="100%"><tr><td style="padding:10px;"><p style="margin:0; font-size:16px; color:#374151; font-family:Arial,sans-serif;">Col 1</p></td></tr></table>
-        </div>
-        <!--[if mso]></td><td width="150" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:150px;">
-          <table role="presentation" width="100%"><tr><td style="padding:10px;"><p style="margin:0; font-size:16px; color:#374151; font-family:Arial,sans-serif;">Col 2</p></td></tr></table>
-        </div>
-        <!--[if mso]></td><td width="150" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:150px;">
-          <table role="presentation" width="100%"><tr><td style="padding:10px;"><p style="margin:0; font-size:16px; color:#374151; font-family:Arial,sans-serif;">Col 3</p></td></tr></table>
-        </div>
-        <!--[if mso]></td><td width="150" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:150px;">
-          <table role="presentation" width="100%"><tr><td style="padding:10px;"><p style="margin:0; font-size:16px; color:#374151; font-family:Arial,sans-serif;">Col 4</p></td></tr></table>
-        </div>
-        <!--[if mso]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </table>`,
-            category: 'Structure',
-          },
-          {
-            id: 'sidebar-layout',
-            label: 'Sidebar Layout',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h6v18H3V3zm8 0h10v18H11V3z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center" style="padding:0 20px; font-size:0;">
-        <!--[if mso]><table role="presentation" width="600"><tr><td width="180" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:180px;">
-          <table role="presentation" width="100%"><tr><td style="padding:20px; background-color:#f9f9f9;">
-            <p style="margin:0; font-size:16px; color:#374151; font-family:Arial, sans-serif;">Sidebar</p>
-          </td></tr></table>
-        </div>
-        <!--[if mso]></td><td width="420" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:420px;">
-          <table role="presentation" width="100%"><tr><td style="padding:20px;">
-            <p style="margin:0; font-size:16px; color:#374151; font-family:Arial, sans-serif;">Main Content</p>
-          </td></tr></table>
-        </div>
-        <!--[if mso]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </table>`,
-            category: 'Structure',
-          },
-
-          // ========== HEADER BLOCKS ==========
-          {
-            id: 'header-logo',
-            label: 'Header Logo',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;">
-    <tr><td align="center" style="padding:24px 20px;">
-      <!--[if mso]><table role="presentation" width="600"><tr><td><![endif]-->
-      <table role="presentation" width="100%" style="max-width:600px;">
-        <tr><td align="center">
-          <img src="https://placehold.co/200x60/F59E0B/FFFFFF?text=Your+Logo" alt="Logo" width="200" style="max-width:200px; width:100%; height:auto; display:block;" />
-        </td></tr>
-      </table>
-      <!--[if mso]></td></tr></table><![endif]-->
-    </td></tr>
-  </table>`,
-            category: 'Headers',
-          },
-          {
-            id: 'header-with-nav',
-            label: 'Header + Nav',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 4h18v4H3V4zm0 6h18v4H3v-4zm0 6h18v4H3v-4z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;">
-    <tr><td align="center" style="padding:16px 20px;">
-      <!--[if mso]><table role="presentation" width="600"><tr><td><![endif]-->
-      <table role="presentation" width="100%" style="max-width:600px;">
-        <tr>
-          <td align="left" style="padding:8px 0;">
-            <img src="https://placehold.co/150x50/F59E0B/FFFFFF?text=Logo" alt="Logo" width="150" style="display:block; width:150px; height:auto;" />
-          </td>
-        </tr>
-        <tr>
-          <td align="right" style="padding:8px 0;">
-            <a href="#" style="color:#374151; text-decoration:none; font-size:14px; font-family:Arial, sans-serif; margin-left:16px;">Home</a>
-            <a href="#" style="color:#374151; text-decoration:none; font-size:14px; font-family:Arial, sans-serif; margin-left:16px;">About</a>
-            <a href="#" style="color:#374151; text-decoration:none; font-size:14px; font-family:Arial, sans-serif; margin-left:16px;">Contact</a>
-          </td>
-        </tr>
-      </table>
-      <!--[if mso]></td></tr></table><![endif]-->
-    </td></tr>
-  </table>`,
-            category: 'Headers',
-          },
-
-          // ========== HERO WITH OUTLOOK-SAFE BACKGROUND ==========
-          {
-            id: 'hero-background',
-            label: 'Hero Background',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M21 3H3v8h18V3zm0 10H3v8h18v-8z"/></svg>',
-            content: `
-  <!--[if gte mso 9]>
-  <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px; height:280px;">
-    <v:fill type="frame" src="https://placehold.co/1200x560/1F2937/FFFFFF?text=Hero+BG" color="#1F2937" />
-    <v:textbox inset="0,0,0,0">
-  <![endif]-->
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center" style="padding:0 20px;">
-        <!--[if mso]><table role="presentation" width="600"><tr><td><![endif]-->
-        <table role="presentation" width="100%" style="max-width:600px;">
-          <tr>
-            <td align="center" style="background: url('https://placehold.co/1200x560/1F2937/FFFFFF?text=Hero+BG') #1F2937 center / cover no-repeat; padding:48px 20px;">
-              <h1 style="margin:0 0 10px 0; font-family:Arial, sans-serif; font-size:32px; line-height:1.2; color:#ffffff;">Welcome!</h1>
-              <p style="margin:0; font-family:Arial, sans-serif; font-size:18px; line-height:1.6; color:#E5E7EB;">Discover amazing products and exclusive offers</p>
-            </td>
-          </tr>
-        </table>
-        <!--[if mso]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </table>
-  <!--[if gte mso 9]></v:textbox></v:rect><![endif]-->`,
-            category: 'Headers',
-          },
-
-          // ========== CONTENT ==========
-          {
-            id: 'image-text-hybrid',
-            label: 'Image + Text',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 5v14H5V5h14"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center" style="padding:0 20px; font-size:0;">
-        <!--[if mso]><table role="presentation" width="600"><tr><td width="300" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:300px;">
-          <table role="presentation" width="100%"><tr><td style="padding:20px;">
-            <img src="https://placehold.co/600x400/F59E0B/FFFFFF?text=Image" alt="Image" width="560" style="width:100%; max-width:560px; height:auto; display:block;" />
-          </td></tr></table>
-        </div>
-        <!--[if mso]></td><td width="300" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:300px;">
-          <table role="presentation" width="100%"><tr><td style="padding:20px;">
-            <h3 style="margin:0 0 10px 0; font-family:Arial, sans-serif; font-size:22px; color:#111827;">Feature Title</h3>
-            <p style="margin:0; font-family:Arial, sans-serif; font-size:16px; line-height:1.6; color:#374151;">Description of your feature or product goes here. Make it compelling and engaging.</p>
-          </td></tr></table>
-        </div>
-        <!--[if mso]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </table>`,
-            category: 'Content',
-          },
-
-          // ========== MEDIA ==========
-          {
-            id: 'image-fluid',
-            label: 'Image',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14"/></svg>',
-            content: `
-  <table role="presentation" width="100%"><tr><td align="center" style="padding:20px;">
-    <!--[if mso]><table role="presentation" width="600"><tr><td><![endif]-->
-    <img src="https://placehold.co/600x350/F59E0B/FFFFFF?text=Your+Image" alt="Image" width="600" style="width:100%; max-width:600px; height:auto; display:block;" />
-    <!--[if mso]></td></tr></table><![endif]-->
-  </td></tr></table>`,
-            category: 'Media',
-          },
-
-          // ========== BUTTONS (Bulletproof) ==========
-          {
-            id: 'button-bulletproof',
-            label: 'Button',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5v18h14z"/></svg>',
-            content: `
-  <table role="presentation" width="100%"><tr><td align="center" style="padding:20px;">
-    <!--[if mso]>
-      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="#" style="height:48px; v-text-anchor:middle; width:220px;" arcsize="10%" stroke="f" fillcolor="#F59E0B">
-        <w:anchorlock/>
-        <center style="color:#ffffff; font-family:Arial, sans-serif; font-size:16px; font-weight:bold;">Click Here</center>
-      </v:roundrect>
-    <![endif]-->
-    <a href="#"
-       style="background-color:#F59E0B; color:#ffffff; display:inline-block; font-family:Arial, sans-serif; font-size:16px; font-weight:bold; line-height:48px; text-align:center; text-decoration:none; border-radius:6px; padding:0 28px; mso-hide:all;">
-       Click Here
-    </a>
-  </td></tr></table>`,
-            category: 'Buttons',
-          },
-          {
-            id: 'cta-banner',
-            label: 'CTA Banner',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M21 3H3v18h18z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" style="background-color:#F59E0B;">
-    <tr><td align="center" style="padding:32px 20px;">
-      <!--[if mso]><table role="presentation" width="600"><tr><td><![endif]-->
-      <table role="presentation" width="100%" style="max-width:600px;">
-        <tr><td align="center">
-          <h2 style="margin:0 0 8px 0; font-family:Arial, sans-serif; font-size:26px; color:#ffffff;">Special Offer!</h2>
-          <p style="margin:0 0 16px 0; font-family:Arial, sans-serif; font-size:16px; color:#ffffff;">Don't miss out on this limited-time opportunity</p>
-          <!-- Reuse bulletproof button inline for consistency -->
-          <!--[if mso]>
-            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="#" style="height:44px; v-text-anchor:middle; width:200px;" arcsize="10%" stroke="f" fillcolor="#ffffff">
-              <w:anchorlock/>
-              <center style="color:#F59E0B; font-family:Arial, sans-serif; font-size:16px; font-weight:bold;">Get Started</center>
-            </v:roundrect>
-          <![endif]-->
-          <a href="#" style="background-color:#ffffff; color:#F59E0B; display:inline-block; font-family:Arial, sans-serif; font-size:16px; font-weight:bold; line-height:44px; text-align:center; text-decoration:none; border-radius:6px; padding:0 24px; mso-hide:all;">Get Started</a>
-        </td></tr>
-      </table>
-      <!--[if mso]></td></tr></table><![endif]-->
-    </td></tr>
-  </table>`,
-            category: 'Buttons',
-          },
-
-          // ========== SPECIAL / ECOMMERCE EXTRAS ==========
-          {
-            id: 'product-grid-2x2',
-            label: 'Product Grid 2x2',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr><td align="center" style="padding:0 12px; font-size:0;">
-      <!-- row 1 -->
-      <!--[if mso]><table role="presentation" width="600"><tr><td width="300" valign="top"><![endif]-->
-      <div style="display:inline-block; vertical-align:top; width:100%; max-width:300px;">
-        <table role="presentation" width="100%"><tr><td style="padding:12px; border:1px solid #E5E7EB;">
-          <img src="https://placehold.co/600x400/F59E0B/FFFFFF?text=Product+1" alt="" width="560" style="width:100%; max-width:560px; height:auto; display:block;" />
-          <h3 style="margin:12px 0 4px 0; font: bold 18px Arial,sans-serif; color:#111827;">Product 1</h3>
-          <p style="margin:0 0 8px 0; font: 14px Arial,sans-serif; color:#6B7280;">Short description</p>
-          <p style="margin:0 0 12px 0; font: bold 18px Arial,sans-serif; color:#F59E0B;">$99</p>
-          <a href="#" style="display:inline-block; background:#F59E0B; color:#fff; text-decoration:none; font: bold 14px Arial,sans-serif; border-radius:6px; line-height:36px; padding:0 16px;">Buy Now</a>
-        </td></tr></table>
-      </div>
-      <!--[if mso]></td><td width="300" valign="top"><![endif]-->
-      <div style="display:inline-block; vertical-align:top; width:100%; max-width:300px;">
-        <table role="presentation" width="100%"><tr><td style="padding:12px; border:1px solid #E5E7EB;">
-          <img src="https://placehold.co/600x400/FBBF24/111?text=Product+2" alt="" width="560" style="width:100%; max-width:560px; height:auto; display:block;" />
-          <h3 style="margin:12px 0 4px 0; font: bold 18px Arial,sans-serif; color:#111827;">Product 2</h3>
-          <p style="margin:0 0 8px 0; font: 14px Arial,sans-serif; color:#6B7280;">Short description</p>
-          <p style="margin:0 0 12px 0; font: bold 18px Arial,sans-serif; color:#F59E0B;">$79</p>
-          <a href="#" style="display:inline-block; background:#F59E0B; color:#fff; text-decoration:none; font: bold 14px Arial,sans-serif; border-radius:6px; line-height:36px; padding:0 16px;">Buy Now</a>
-        </td></tr></table>
-      </div>
-      <!--[if mso]></td></tr><tr><td width="300" valign="top"><![endif]-->
-      <!-- row 2 -->
-      <div style="display:inline-block; vertical-align:top; width:100%; max-width:300px;">
-        <table role="presentation" width="100%"><tr><td style="padding:12px; border:1px solid #E5E7EB;">
-          <img src="https://placehold.co/600x400/D97706/FFFFFF?text=Product+3" alt="" width="560" style="width:100%; max-width:560px; height:auto; display:block;" />
-          <h3 style="margin:12px 0 4px 0; font: bold 18px Arial,sans-serif; color:#111827;">Product 3</h3>
-          <p style="margin:0 0 8px 0; font: 14px Arial,sans-serif; color:#6B7280;">Short description</p>
-          <p style="margin:0 0 12px 0; font: bold 18px Arial,sans-serif; color:#F59E0B;">$59</p>
-          <a href="#" style="display:inline-block; background:#F59E0B; color:#fff; text-decoration:none; font: bold 14px Arial,sans-serif; border-radius:6px; line-height:36px; padding:0 16px;">Buy Now</a>
-        </td></tr></table>
-      </div>
-      <!--[if mso]></td><td width="300" valign="top"><![endif]-->
-      <div style="display:inline-block; vertical-align:top; width:100%; max-width:300px;">
-        <table role="presentation" width="100%"><tr><td style="padding:12px; border:1px solid #E5E7EB;">
-          <img src="https://placehold.co/600x400/92400E/FFFFFF?text=Product+4" alt="" width="560" style="width:100%; max-width:560px; height:auto; display:block;" />
-          <h3 style="margin:12px 0 4px 0; font: bold 18px Arial,sans-serif; color:#111827;">Product 4</h3>
-          <p style="margin:0 0 8px 0; font: 14px Arial,sans-serif; color:#6B7280;">Short description</p>
-          <p style="margin:0 0 12px 0; font: bold 18px Arial,sans-serif; color:#F59E0B;">$89</p>
-          <a href="#" style="display:inline-block; background:#F59E0B; color:#fff; text-decoration:none; font: bold 14px Arial,sans-serif; border-radius:6px; line-height:36px; padding:0 16px;">Buy Now</a>
-        </td></tr></table>
-      </div>
-      <!--[if mso]></td></tr></table><![endif]-->
-    </td></tr>
-  </table>`,
-            category: 'Special',
-          },
-          {
-            id: 'order-summary',
-            label: 'Order Summary',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 5h18v14H3z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr><td align="center" style="padding:0 20px;">
-      <!--[if mso]><table role="presentation" width="600"><tr><td><![endif]-->
-      <table role="presentation" width="100%" style="max-width:600px; border:1px solid #E5E7EB;">
-        <tr><td style="padding:16px 20px; font: bold 18px Arial,sans-serif; color:#111827;">Order Summary</td></tr>
-        <tr><td style="padding:0 20px 16px 20px;">
-          <table role="presentation" width="100%">
-            <tr>
-              <td style="padding:8px 0; font:14px Arial,sans-serif; color:#374151;">Item A</td>
-              <td align="right" style="padding:8px 0; font:14px Arial,sans-serif; color:#374151;">$49.00</td>
-            </tr>
-            <tr>
-              <td style="padding:8px 0; font:14px Arial,sans-serif; color:#374151;">Item B</td>
-              <td align="right" style="padding:8px 0; font:14px Arial,sans-serif; color:#374151;">$29.00</td>
-            </tr>
-            <tr>
-              <td style="padding:8px 0; font:14px Arial,sans-serif; color:#374151;">Shipping</td>
-              <td align="right" style="padding:8px 0; font:14px Arial,sans-serif; color:#374151;">$0.00</td>
-            </tr>
-            <tr>
-              <td style="border-top:1px solid #E5E7EB; padding:12px 0; font: bold 16px Arial,sans-serif; color:#111827;">Total</td>
-              <td align="right" style="border-top:1px solid #E5E7EB; padding:12px 0; font: bold 16px Arial,sans-serif; color:#111827;">$78.00</td>
-            </tr>
-          </table>
-        </td></tr>
-      </table>
-      <!--[if mso]></td></tr></table><![endif]-->
-    </td></tr>
-  </table>`,
-            category: 'Special',
-          },
-          {
-            id: 'coupon-box',
-            label: 'Coupon Box',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M2 7h20v10H2z"/></svg>',
-            content: `
-  <table role="presentation" width="100%"><tr><td align="center" style="padding:20px;">
-    <!--[if mso]><table role="presentation" width="600"><tr><td><![endif]-->
-    <table role="presentation" width="100%" style="max-width:600px; background:#FEF3C7; border:1px dashed #F59E0B;">
-      <tr><td align="center" style="padding:16px 20px;">
-        <p style="margin:0 0 8px 0; font: bold 18px Arial,sans-serif; color:#92400E;">Limited Time Coupon</p>
-        <p style="margin:0; font: 16px Arial,sans-serif; color:#78350F;">Use code <span style="font-weight:bold; letter-spacing:1px;">SAVE20</span> at checkout</p>
-      </td></tr>
-    </table>
-    <!--[if mso]></td></tr></table><![endif]-->
-  </td></tr></table>`,
-            category: 'Special',
-          },
-          // ========== FOOTERS ==========
-          {
-            id: 'footer-simple',
-            label: 'Simple Footer',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M2 20h20V4H2v16Z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" style="background-color:#111827;">
-    <tr><td align="center" style="padding:24px 20px;">
-      <!--[if mso]><table role="presentation" width="600"><tr><td><![endif]-->
-      <table role="presentation" width="100%" style="max-width:600px;">
-        <tr><td align="center" style="font-family:Arial, sans-serif; font-size:14px; color:#9CA3AF; line-height:1.6;">
-          <p style="margin:0 0 8px 0;">© 2025 Your Company. All rights reserved.</p>
-          <p style="margin:0 0 8px 0;">
-            <a href="{{view_in_browser_url}}" style="color:#F59E0B; text-decoration:none;">View in browser</a> ·
-            <a href="{{unsubscribe_url}}" style="color:#F59E0B; text-decoration:none;">Unsubscribe</a> ·
-            <a href="{{privacy_url}}" style="color:#F59E0B; text-decoration:none;">Privacy</a>
-          </p>
-          <p style="margin:0; font-size:13px; color:#9CA3AF;">
-            {{company_name}}, {{address_line_1}}, {{address_line_2}}, {{city}}, {{region}} {{postal_code}}, {{country}}
-          </p>
-        </td></tr>
-      </table>
-      <!--[if mso]></td></tr></table><![endif]-->
-    </td></tr>
-  </table>`,
-            category: 'Footers',
-          },
-          {
-            id: 'footer-detailed',
-            label: 'Detailed Footer',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h18v8H3v8z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" style="background-color:#1F2937;">
-    <tr>
-      <td align="center" style="padding:32px 20px; font-size:0;">
-        <!--[if mso]><table role="presentation" width="600"><tr>
-          <td width="200" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:200px;">
-          <table role="presentation" width="100%"><tr><td style="padding:12px;">
-            <h4 style="margin:0 0 10px 0; font: bold 16px Arial,sans-serif; color:#F59E0B;">About</h4>
-            <p style="margin:0; font: 14px/1.6 Arial,sans-serif; color:#D1D5DB;">Brief description of your company or newsletter.</p>
-          </td></tr></table>
-        </div>
-        <!--[if mso]></td><td width="200" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:200px;">
-          <table role="presentation" width="100%"><tr><td style="padding:12px;">
-            <h4 style="margin:0 0 10px 0; font: bold 16px Arial,sans-serif; color:#F59E0B;">Links</h4>
-            <p style="margin:0 0 8px 0;"><a href="{{home_url}}" style="color:#D1D5DB; text-decoration:none; font:14px Arial,sans-serif;">Home</a></p>
-            <p style="margin:0 0 8px 0;"><a href="{{products_url}}" style="color:#D1D5DB; text-decoration:none; font:14px Arial,sans-serif;">Products</a></p>
-            <p style="margin:0;"><a href="{{support_url}}" style="color:#D1D5DB; text-decoration:none; font:14px Arial,sans-serif;">Support</a></p>
-          </td></tr></table>
-        </div>
-        <!--[if mso]></td><td width="200" valign="top"><![endif]-->
-        <div style="display:inline-block; vertical-align:top; width:100%; max-width:200px;">
-          <table role="presentation" width="100%"><tr><td style="padding:12px;">
-            <h4 style="margin:0 0 10px 0; font: bold 16px Arial,sans-serif; color:#F59E0B;">Contact</h4>
-            <p style="margin:0 0 6px 0; font:14px Arial,sans-serif; color:#D1D5DB;">{{support_email}}</p>
-            <p style="margin:0 0 6px 0; font:14px Arial,sans-serif; color:#D1D5DB;">{{support_phone}}</p>
-            <p style="margin:0; font:14px Arial,sans-serif; color:#D1D5DB;">{{address_line_1}}, {{city}}</p>
-          </td></tr></table>
-        </div>
-        <!--[if mso]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-    <tr>
-      <td align="center" style="padding:0 20px 24px;">
-        <p style="margin:0; font:12px Arial,sans-serif; color:#9CA3AF;">
-          You received this email because you signed up at {{signup_source}}. Manage preferences or <a href="{{unsubscribe_url}}" style="color:#F59E0B; text-decoration:none;">unsubscribe</a>.
-        </p>
-      </td>
-    </tr>
-  </table>`,
-            category: 'Footers',
-          },
-          {
-            id: 'footer-legal-compact',
-            label: 'Legal Footer',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M2 20h20V4H2z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" style="background:#0B1220;">
-    <tr><td align="center" style="padding:16px 20px;">
-      <table role="presentation" width="100%" style="max-width:600px;">
-        <tr><td align="center" style="font:12px/1.6 Arial,sans-serif; color:#9CA3AF;">
-          <p style="margin:0 0 6px 0;">
-            {{company_name}} · {{address_line_1}}, {{city}}, {{region}} {{postal_code}}, {{country}}
-          </p>
-          <p style="margin:0;">
-            <a href="{{unsubscribe_url}}" style="color:#F59E0B; text-decoration:none;">Unsubscribe</a> ·
-            <a href="{{preferences_url}}" style="color:#F59E0B; text-decoration:none;">Manage preferences</a>
-          </p>
-        </td></tr>
-      </table>
-    </td></tr>
-  </table>`,
-            category: 'Footers',
-          },
-
-          // ========== UTILITIES ==========
-          {
-            id: 'preheader',
-            label: 'Preheader (Hidden)',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 5h18v14H3z"/></svg>',
-            content: `
-  <!-- Preheader: place this immediately after <body> -->
-  <div style="display:none; font-size:1px; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden; mso-hide:all;">
-    Your short, benefit‑led preview text goes here. Avoid repeating the subject.
-  </div>`,
-            category: 'Utilities',
-          },
-          {
-            id: 'view-in-browser',
-            label: 'View in Browser',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 5h18v14H3z"/></svg>',
-            content: `
-  <table role="presentation" width="100%">
-    <tr><td align="center" style="padding:8px 20px;">
-      <table role="presentation" width="100%" style="max-width:600px;">
-        <tr>
-          <td align="right" style="font:12px Arial,sans-serif; color:#6B7280;">
-            Having trouble viewing this email? <a href="{{view_in_browser_url}}" style="color:#2563EB; text-decoration:none;">View in your browser</a>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>`,
-            category: 'Utilities',
-          },
-          {
-            id: 'divider',
-            label: 'Divider',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 11h18v2H3z"/></svg>',
-            content: `
-  <table role="presentation" width="100%"><tr><td style="padding:16px 0;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      <tr><td style="border-top:1px solid #E5E7EB; height:1px; line-height:1px; font-size:0;">&nbsp;</td></tr>
-    </table>
-  </td></tr></table>`,
-            category: 'Decorations',
-          },
-          {
-            id: 'dotted-divider',
-            label: 'Dotted Divider',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 11h2v2H3z"/></svg>',
-            content: `
-  <table role="presentation" width="100%"><tr><td style="padding:16px 0;">
-    <table role="presentation" width="100%"><tr>
-      <td style="border-top:2px dotted #E5E7EB; height:1px; line-height:1px; font-size:0;">&nbsp;</td>
-    </tr></table>
-  </td></tr></table>`,
-            category: 'Decorations',
-          },
-          {
-            id: 'spacer',
-            label: 'Spacer',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 15h18v-2H3z"/></svg>',
-            content: `
-  <table role="presentation" width="100%"><tr>
-    <td style="height:24px; line-height:24px; font-size:0;">&nbsp;</td>
-  </tr></table>`,
-            category: 'Decorations',
-          },
-
-          // ========== SOCIAL ==========
-          {
-            id: 'social-icons-touch',
-            label: 'Social Icons',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77"/></svg>',
-            content: `
-  <table role="presentation" width="100%">
-    <tr><td align="center" style="padding:20px;">
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td align="center" style="padding:4px;">
-            <a href="{{facebook_url}}" style="display:inline-block;">
-              <img src="https://placehold.co/88x88/3b5998/FFFFFF?text=f" alt="Facebook" width="44" height="44" style="display:block; width:44px; height:44px; border-radius:50%;" />
-            </a>
-          </td>
-          <td align="center" style="padding:4px;">
-            <a href="{{twitter_url}}" style="display:inline-block;">
-              <img src="https://placehold.co/88x88/1DA1F2/FFFFFF?text=T" alt="Twitter/X" width="44" height="44" style="display:block; width:44px; height:44px; border-radius:50%;" />
-            </a>
-          </td>
-          <td align="center" style="padding:4px;">
-            <a href="{{instagram_url}}" style="display:inline-block;">
-              <img src="https://placehold.co/88x88/E4405F/FFFFFF?text=IG" alt="Instagram" width="44" height="44" style="display:block; width:44px; height:44px; border-radius:50%;" />
-            </a>
-          </td>
-          <td align="center" style="padding:4px;">
-            <a href="{{linkedin_url}}" style="display:inline-block;">
-              <img src="https://placehold.co/88x88/0077B5/FFFFFF?text=in" alt="LinkedIn" width="44" height="44" style="display:block; width:44px; height:44px; border-radius:50%;" />
-            </a>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>`,
-            category: 'Social',
-          },
-          {
-            id: 'social-share',
-            label: 'Social Share',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M21 3H3v18h18z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" style="background:#F9FAFB;">
-    <tr><td align="center" style="padding:24px 20px;">
-      <p style="margin:0 0 12px 0; font:16px Arial,sans-serif; color:#374151;">Share this with your friends</p>
-      <a href="{{share_facebook}}" style="display:inline-block; padding:12px 20px; margin:4px; border-radius:4px; background:#3b5998; color:#fff; text-decoration:none; font:14px Arial,sans-serif;">Facebook</a>
-      <a href="{{share_twitter}}" style="display:inline-block; padding:12px 20px; margin:4px; border-radius:4px; background:#1DA1F2; color:#fff; text-decoration:none; font:14px Arial,sans-serif;">Twitter</a>
-      <a href="{{share_linkedin}}" style="display:inline-block; padding:12px 20px; margin:4px; border-radius:4px; background:#0077B5; color:#fff; text-decoration:none; font:14px Arial,sans-serif;">LinkedIn</a>
-    </td></tr>
-  </table>`,
-            category: 'Social',
-          },
-
-          // ========== EXTRA SPECIAL/E-COMMERCE ==========
-          {
-            id: 'signature-block',
-            label: 'Signature',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v16H4z"/></svg>',
-            content: `
-  <table role="presentation" width="100%">
-    <tr><td align="left" style="padding:20px; font:14px/1.7 Arial,sans-serif; color:#374151;">
-      <p style="margin:0 0 8px 0;">Best regards,</p>
-      <p style="margin:0 0 8px 0; font-weight:bold; color:#111827;">{{sender_name}}</p>
-      <p style="margin:0;">{{sender_title}} · {{company_name}}</p>
-    </td></tr>
-  </table>`,
-            category: 'Special',
-          },
-          {
-            id: 'rating-row',
-            label: 'Star Rating Row',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 17.27 18.18 21"/></svg>',
-            content: `
-  <table role="presentation" width="100%"><tr><td align="center" style="padding:12px 20px;">
-    <span style="font-size:20px; color:#F59E0B;">★ ★ ★ ★ ☆</span>
-    <p style="margin:8px 0 0 0; font:14px Arial,sans-serif; color:#374151;">4.0/5 based on 128 reviews</p>
-  </td></tr></table>`,
-            category: 'Special',
-          },
-          {
-            id: 'free-shipping-banner',
-            label: 'Free Shipping Banner',
-            media: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M2 7h20v10H2z"/></svg>',
-            content: `
-  <table role="presentation" width="100%" style="background:#ECFDF5;">
-    <tr><td align="center" style="padding:12px 20px;">
-      <p style="margin:0; font:14px Arial,sans-serif; color:#065F46;">Free shipping on orders over $50 · Use code <span style="font-weight:bold;">FREESHIP</span></p>
-    </td></tr>
-  </table>`,
-            category: 'Special',
-          },
-        ],
+        blocks,
       },
       layerManager: {
         appendTo: '#layers-container',
@@ -1114,6 +419,25 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Add custom commands
     this.addCustomCommands();
+    
+    // Add custom component types for columns
+    this.addCustomComponentTypes();
+    
+    // Add selection event listener to auto-select column containers
+    this.setupColumnSelection();
+
+    // Default canvas content: Email Container when creating a new template
+    this.editor.on('load', () => {
+      if (!this.templateId) {
+        const hasContent = this.editor.getComponents().length > 0;
+        if (!hasContent) {
+          const emailContainer = EMAIL_BLOCKS.find(b => b.id === 'email-container');
+          if (emailContainer) {
+            this.editor.setComponents(emailContainer.content);
+          }
+        }
+      }
+    });
   }
 
   private addCustomCommands(): void {
@@ -1222,6 +546,631 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         alert('✅ Email template exported successfully with inlined CSS!');
       },
     });
+  }
+
+  private addCustomComponentTypes(): void {
+    const editor = this.editor;
+    
+    // Define custom flexible column layout component
+    editor.DomComponents.addType('flexible-columns', {
+      isComponent: (el: any) => {
+        // Check for data-gjs-type OR data-column-count attribute
+        return el.getAttribute?.('data-gjs-type') === 'flexible-columns' ||
+               (el.tagName === 'DIV' && el.getAttribute?.('data-column-count'));
+      },
+      model: {
+        defaults: {
+          name: 'Flexible Columns',
+          droppable: true,
+          stylable: true,
+          tagName: 'div',
+          attributes: { 
+            'data-gjs-type': 'flexible-columns',
+            'data-column-count': '2',
+            'data-column-align': 'top',
+            'data-column-padding': '20',
+            'data-bg-color': '',
+            'data-column-spacing': '0'
+          },
+          traits: [
+            {
+              type: 'select',
+              label: 'Number of Columns',
+              name: 'data-column-count',
+              options: [
+                { id: '1', name: '1 Column' },
+                { id: '2', name: '2 Columns' },
+                { id: '3', name: '3 Columns' },
+                { id: '4', name: '4 Columns' },
+              ]
+            },
+            {
+              type: 'select',
+              label: 'Column Alignment',
+              name: 'data-column-align',
+              options: [
+                { id: 'top', name: 'Top' },
+                { id: 'middle', name: 'Middle' },
+                { id: 'bottom', name: 'Bottom' },
+              ]
+            },
+            {
+              type: 'color',
+              label: 'Background Color',
+              name: 'data-bg-color',
+            },
+            {
+              type: 'number',
+              label: 'Column Padding (px)',
+              name: 'data-column-padding',
+              min: 0,
+              max: 100,
+            }
+          ],
+        },
+        init() {
+          // Listen to attribute changes on this component
+          const model = this as any;
+          let debounceTimer: any = null;
+          
+          model.on('change:attributes', () => {
+            // Debounce to prevent excessive rebuilds
+            if (debounceTimer) clearTimeout(debounceTimer);
+            
+            debounceTimer = setTimeout(() => {
+              if (model.view && model.view.el && !model.get('rebuilding')) {
+                model.trigger('custom:update');
+              }
+            }, 150);
+          });
+        }
+      }
+    });
+    
+    // Add class to individual column divs for easier identification
+    editor.DomComponents.addType('email-column-div', {
+      isComponent: (el: any) => {
+        if (el.tagName === 'DIV') {
+          const className = el.getAttribute('class') || '';
+          const dataIndex = el.getAttribute('data-column-index');
+          return className.includes('email-column') || dataIndex !== null;
+        }
+        return false;
+      },
+      model: {
+        defaults: {
+          name: 'Column',
+          droppable: true,
+          stylable: true,
+          highlightable: true,
+          attributes: { class: 'email-column', 'data-col-padding': '20', 'data-col-bg': '', 'data-col-valign': 'top' },
+          traits: [
+            {
+              type: 'number',
+              label: 'Padding (px)',
+              name: 'data-col-padding',
+              min: 0,
+              max: 100,
+            },
+            {
+              type: 'color',
+              label: 'Background',
+              name: 'data-col-bg',
+            },
+            {
+              type: 'select',
+              label: 'Vertical Align',
+              name: 'data-col-valign',
+              options: [
+                { id: 'top', name: 'Top' },
+                { id: 'middle', name: 'Middle' },
+                { id: 'bottom', name: 'Bottom' },
+              ],
+            },
+          ]
+        },
+        init() {
+          // Listen to attribute changes on this column
+          const model = this as any;
+          let debounceTimer: any = null;
+          
+          model.on('change:attributes', () => {
+            // Debounce to prevent excessive updates
+            if (debounceTimer) clearTimeout(debounceTimer);
+            
+            debounceTimer = setTimeout(() => {
+              if (model.view && model.view.el && !model.get('applying-attributes')) {
+                model.trigger('custom:column-update');
+              }
+            }, 100);
+          });
+        }
+      }
+    });
+    
+    // Listen to updates for flexible-columns and individual column props
+    editor.on('component:update', (component: any) => {
+      const t = component.get('type');
+      if (t === 'flexible-columns') {
+        this.handleColumnUpdate(component);
+      } else if (t === 'email-column-div') {
+        this.applyEmailColumnAttributes(component);
+      }
+    });
+    
+    // Listen to trait changes via attribute changes
+    editor.on('component:update:attributes', (component: any) => {
+      const t = component.get('type');
+      if (t === 'flexible-columns') {
+        this.handleColumnUpdate(component);
+      } else if (t === 'email-column-div') {
+        this.applyEmailColumnAttributes(component);
+      }
+    });
+    
+    // Listen to custom events from component models
+    editor.on('component:custom:update', (component: any) => {
+      this.handleColumnUpdate(component);
+    });
+    
+    editor.on('component:custom:column-update', (component: any) => {
+      this.applyEmailColumnAttributes(component);
+    });
+  }
+  
+  private handleColumnUpdate(component: any): void {
+    // Avoid unnecessary rebuilds/infinite loops
+    if (component.get('rebuilding')) return;
+
+    const attrs = component.getAttributes();
+    const count = parseInt(attrs['data-column-count'] || '2');
+    const valign = attrs['data-column-align'] || 'top';
+    const bgColor = attrs['data-bg-color'] || '';
+    const padding = parseInt(attrs['data-column-padding'] || '20');
+    const fingerprint = `${count}|${valign}|${bgColor}|${padding}`;
+
+    const currentCols = component.find('.email-column');
+    if (component.get('lastColumnConfig') === fingerprint && currentCols.length === count) {
+      return;
+    }
+    component.set('rebuilding', true);
+
+    const maxWidth = 600;
+    const columnWidth = Math.floor(maxWidth / count);
+    
+    // Preserve inner content per column index
+    const preserved: Record<number, any[]> = {};
+    currentCols.forEach((col: any) => {
+      const idx = parseInt(col.getAttributes()['data-column-index'] || '0');
+      const innerTable = col.find('table')[0];
+      const innerTd = innerTable ? innerTable.find('td')[0] : null;
+      const items = innerTd ? innerTd.components().map((c: any) => c.clone()) : [];
+      preserved[idx] = items;
+    });
+    
+    // Generate MSO columns for Outlook
+    let msoColumns = '';
+    for (let i = 0; i < count; i++) {
+      const bgStyle = bgColor ? `background-color:${bgColor};` : '';
+      msoColumns += `<td width="${columnWidth}" valign="${valign}">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="padding:${padding}px; ${bgStyle}"></td></tr>
+  </table>
+</td>`;
+    }
+    
+    // Clear existing components
+    component.components('');
+    
+    // Create the wrapper table
+    const table = component.append({
+      type: 'default',
+      tagName: 'table',
+      attributes: {
+        role: 'presentation',
+        width: '100%',
+        cellpadding: '0',
+        cellspacing: '0',
+        border: '0'
+      },
+      selectable: false,
+      hoverable: false,
+      highlightable: false,
+      layerable: false,
+      droppable: false,
+    })[0];
+    
+    const tr = table.append({ 
+      tagName: 'tr',
+      selectable: false,
+      hoverable: false,
+      highlightable: false,
+      layerable: false,
+      droppable: false,
+    })[0];
+    
+    const td = tr.append({
+      tagName: 'td',
+      attributes: {
+        align: 'center',
+        style: 'padding:0 20px; font-size:0;'
+      },
+      selectable: false,
+      hoverable: false,
+      highlightable: false,
+      layerable: false,
+      droppable: false,
+    })[0];
+    
+    // Add MSO conditional comment
+    td.append({
+      type: 'comment',
+      content: `[if mso]>
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0">
+        <tr>${msoColumns}</tr>
+      </table>
+      <![endif]`
+    });
+    
+    // Create column divs as proper GrapesJS components
+    for (let i = 0; i < count; i++) {
+      const bgStyle = bgColor ? `background-color:${bgColor};` : '';
+      
+      const columnDiv = td.append({
+        type: 'email-column-div',
+        tagName: 'div',
+        name: `Column ${i + 1}`,
+        attributes: {
+          class: 'email-column',
+          'data-column-index': i.toString(),
+          'data-col-padding': padding.toString(),
+          'data-col-bg': bgColor,
+          'data-col-valign': valign,
+          style: `display:inline-block; vertical-align:${valign}; width:100%; max-width:${columnWidth}px;`
+        },
+        droppable: false, // Don't drop directly on the column div
+        selectable: true,
+        hoverable: true,
+        highlightable: true,
+      })[0];
+      
+      const colTable = columnDiv.append({
+        tagName: 'table',
+        attributes: {
+          role: 'presentation',
+          width: '100%',
+          cellpadding: '0',
+          cellspacing: '0',
+          border: '0'
+        },
+        selectable: false,
+        hoverable: false,
+        highlightable: false,
+        layerable: false,
+        droppable: false,
+      })[0];
+      
+      const colTr = colTable.append({ 
+        tagName: 'tr',
+        selectable: false,
+        hoverable: false,
+        highlightable: false,
+        layerable: false,
+        droppable: false,
+      })[0];
+      
+      const colTd = colTr.append({
+        tagName: 'td',
+        attributes: {
+          style: `padding:${padding}px; ${bgStyle}`
+        },
+        name: 'Drop content here',
+        droppable: true, // Only the inner TD accepts drops
+        selectable: false, // Don't allow selecting the TD
+        hoverable: false,
+        highlightable: false,
+        layerable: false,
+      })[0];
+      
+      // Restore preserved content if available
+      const prev = preserved[i] || [];
+      prev.forEach((comp: any) => colTd.append(comp));
+    }
+
+    component.set('lastColumnConfig', fingerprint);
+    component.unset('rebuilding');
+  }
+
+  private setupColumnSelection(): void {
+    const editor = this.editor;
+    
+    // When a component is added to canvas (dropped from block)
+    editor.on('block:drag:stop', (component: any) => {
+      // Wait for the component to be fully added
+      setTimeout(() => {
+        if (component) {
+          let toSelect = component;
+          if (toSelect.get && toSelect.get('type') !== 'flexible-columns') {
+            // If dropped inside flexible-columns, bubble up
+            let p = toSelect.parent && toSelect.parent();
+            while (p) {
+              if (p.get && p.get('type') === 'flexible-columns') {
+                toSelect = p;
+                break;
+              }
+              p = p.parent && p.parent();
+            }
+          }
+          if (toSelect && toSelect.get && toSelect.get('type') === 'flexible-columns') {
+            editor.select(toSelect);
+            return;
+          }
+        }
+
+        // Fallback: pick the last flexible-columns in the canvas
+        const wrapper = editor.getWrapper();
+        const all = wrapper.find('*');
+        const flexList = all.filter((c: any) => c.get('type') === 'flexible-columns');
+        if (flexList.length) {
+          editor.select(flexList[flexList.length - 1]);
+          return;
+        }
+
+        // Legacy columns fallback: select first column inside a column container
+        all.forEach((comp: any) => {
+          const attrs = comp.getAttributes();
+          const style = attrs.style || '';
+          if (style.includes('font-size:0') || style.includes('font-size: 0')) {
+            const columns = comp.find('div').filter((div: any) => {
+              const divStyle = div.getAttributes().style || '';
+              return divStyle.includes('display:inline-block') || divStyle.includes('display: inline-block');
+            });
+            if (columns.length > 0) {
+              editor.select(columns[0]);
+              columns.forEach((col: any) => {
+                col.set({ name: 'Column', selectable: true, hoverable: true, highlightable: true });
+              });
+            }
+          }
+        });
+      }, 200);
+    });
+    
+    // Prevent auto-selecting text inside columns on first click
+    // Also handle reselection of flexible-columns when clicking child elements
+    editor.on('component:selected', (component: any) => {
+      if (!component) return;
+      
+      const tagName = component.get('tagName');
+      const componentType = component.get('type');
+      
+      // If a table/tr/td inside a column is selected, select the column div instead
+      if (tagName === 'table' || tagName === 'tr' || tagName === 'td') {
+        let parent = component.parent();
+        
+        // Find the email-column-div parent
+        while (parent) {
+          const parentType = parent.get('type');
+          
+          if (parentType === 'email-column-div') {
+            setTimeout(() => {
+              editor.select(parent);
+            }, 10);
+            return;
+          }
+          
+          if (parentType === 'flexible-columns') {
+            // If inside flexible-columns but not in a column-div, select the flexible-columns
+            setTimeout(() => {
+              editor.select(parent);
+            }, 10);
+            return;
+          }
+          
+          parent = parent.parent();
+        }
+      }
+      
+      // Prefill column traits from inner TD styles when selecting a column
+      if (componentType === 'email-column-div') {
+        // Use a timeout to avoid blocking the UI
+        setTimeout(() => {
+          this.prefillEmailColumnTraits(component);
+        }, 50);
+      }
+
+      // If a child element is selected, check if it's inside a flexible-columns component
+      if (componentType !== 'flexible-columns') {
+        let parent = component.parent();
+        
+        // Navigate up to find the flexible-columns parent
+        while (parent) {
+          const parentType = parent.get('type');
+          
+          if (parentType === 'flexible-columns') {
+            // If the selected component is a table/tr/td (structural), select the flexible-columns
+            if (tagName === 'table' || tagName === 'tr' || tagName === 'td') {
+              setTimeout(() => {
+                editor.select(parent);
+              }, 10);
+            }
+            break;
+          }
+          parent = parent.parent();
+        }
+      }
+    });
+    
+    // Listen for component additions to auto-select flexible-columns
+    editor.on('component:add', (component: any) => {
+      const componentType = component.get('type');
+      
+      // If a flexible-columns component is added, select it after a short delay
+      if (componentType === 'flexible-columns') {
+        setTimeout(() => {
+          editor.select(component);
+        }, 100);
+      }
+    });
+
+    // Add custom CSS for better column highlighting
+    editor.on('load', () => {
+      const canvasDoc = editor.Canvas.getDocument();
+      const style = canvasDoc.createElement('style');
+      style.innerHTML = `
+        .email-column {
+          outline: 2px dashed transparent;
+          transition: outline 0.2s;
+        }
+        .email-column:hover {
+          outline-color: #F59E0B !important;
+        }
+        .gjs-selected .email-column {
+          outline-color: #2563EB !important;
+        }
+      `;
+      canvasDoc.head.appendChild(style);
+    });
+  }
+
+  // Apply column trait attributes to inner TD styles
+  private applyEmailColumnAttributes(columnDiv: any): void {
+    // Prevent infinite loops
+    if (columnDiv.get && columnDiv.get('applying-attributes')) return;
+    
+    const attrs = columnDiv.getAttributes?.() || {};
+    const pad = attrs['data-col-padding'];
+    const bg = attrs['data-col-bg'];
+    const valign = attrs['data-col-valign'];
+
+    const innerTable = columnDiv.find('table')[0];
+    const innerTd = innerTable ? innerTable.find('td')[0] : null;
+    if (!innerTd) return;
+
+    // Set flag to prevent recursion
+    if (columnDiv.set) columnDiv.set('applying-attributes', true);
+
+    // Build style string preserving unknown styles
+    const currentStyle = (innerTd.getAttributes?.().style || '') as string;
+    const styleMap: Record<string, string> = {};
+    currentStyle.split(';').forEach((kv) => {
+      const [k, v] = kv.split(':').map(s => s && s.trim());
+      if (k && v) styleMap[k] = v;
+    });
+
+    if (pad !== undefined && pad !== null && pad !== '') {
+      styleMap['padding'] = `${parseInt(pad, 10) || 0}px`;
+    }
+    if (bg !== undefined && bg !== null && bg !== '') {
+      styleMap['background-color'] = bg;
+    }
+    if (valign) {
+      // Vertical-align belongs to the column DIV (inline-block) and MSO TDs; we set on DIV for live preview
+      const divAttrs = columnDiv.getAttributes?.() || {};
+      const divStyle = (divAttrs.style || '') as string;
+      const divMap: Record<string, string> = {};
+      divStyle.split(';').forEach((kv) => {
+        const [k, v] = kv.split(':').map(s => s && s.trim());
+        if (k && v) divMap[k] = v;
+      });
+      divMap['vertical-align'] = valign;
+      const newDivStyle = Object.entries(divMap).map(([k, v]) => `${k}: ${v}`).join('; ');
+      columnDiv.addAttributes({ style: newDivStyle }, { silent: true });
+    }
+
+    const newStyle = Object.entries(styleMap).map(([k, v]) => `${k}: ${v}`).join('; ');
+    innerTd.addAttributes({ style: newStyle }, { silent: true });
+    
+    // Clear flag after a short delay
+    setTimeout(() => {
+      if (columnDiv.unset) columnDiv.unset('applying-attributes');
+    }, 50);
+  }
+
+  // Read inner TD styles to prefill traits on selection
+  private prefillEmailColumnTraits(columnDiv: any): void {
+    const innerTable = columnDiv.find('table')[0];
+    const innerTd = innerTable ? innerTable.find('td')[0] : null;
+    if (!innerTd) return;
+
+    const style = (innerTd.getAttributes?.().style || '') as string;
+    const map: Record<string, string> = {};
+    style.split(';').forEach((kv) => {
+      const [k, v] = kv.split(':').map(s => s && s.trim());
+      if (k && v) map[k] = v;
+    });
+
+    const padding = map['padding'];
+    const bg = map['background-color'];
+
+    const divAttrs = columnDiv.getAttributes?.() || {};
+    const divStyle = (divAttrs.style || '') as string;
+    const dmap: Record<string, string> = {};
+    divStyle.split(';').forEach((kv) => {
+      const [k, v] = kv.split(':').map(s => s && s.trim());
+      if (k && v) dmap[k] = v;
+    });
+    const valign = dmap['vertical-align'] || '';
+
+    const toSet: any = {};
+    if (padding) {
+      const num = parseInt(padding.replace('px','').trim(), 10);
+      if (!isNaN(num)) toSet['data-col-padding'] = String(num);
+    }
+    if (bg) {
+      toSet['data-col-bg'] = bg;
+    }
+    if (valign) {
+      toSet['data-col-valign'] = valign;
+    }
+    if (Object.keys(toSet).length) {
+      // Use silent option to prevent triggering change events
+      columnDiv.addAttributes(toSet, { silent: true });
+    }
+  }
+
+  private isColumnContainer(component: any): boolean {
+    // Check if component contains multiple inline-block divs (columns)
+    const html = component.toHTML?.() || '';
+    const styleAttr = component.getAttributes?.()?.style || '';
+    
+    return (
+      html.includes('display:inline-block') || 
+      html.includes('display: inline-block') ||
+      styleAttr.includes('font-size:0') || // Common pattern for column containers
+      styleAttr.includes('font-size: 0')
+    );
+  }
+
+  private isInsideColumn(component: any): boolean {
+    // Check if component is a text/paragraph inside a column structure
+    let parent = component.parent?.();
+    while (parent) {
+      const parentStyle = parent.getAttributes?.()?.style || '';
+      if (parentStyle.includes('display:inline-block') || 
+          parentStyle.includes('display: inline-block')) {
+        return true;
+      }
+      parent = parent.parent?.();
+    }
+    return false;
+  }
+
+  private findColumnParent(component: any): any {
+    // Find the column div parent
+    let parent = component.parent?.();
+    while (parent) {
+      const parentStyle = parent.getAttributes?.()?.style || '';
+      const parentTag = parent.get?.('tagName') || '';
+      
+      if (parentTag.toLowerCase() === 'div' && 
+          (parentStyle.includes('display:inline-block') || 
+           parentStyle.includes('display: inline-block'))) {
+        return parent;
+      }
+      parent = parent.parent?.();
+    }
+    return null;
   }
 
   private setupEventListeners(): void {
