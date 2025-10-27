@@ -9,10 +9,16 @@ export class CreateTemplateDto {
   description?: string;
 
   @IsString()
-  html: string;
+  @IsOptional()
+  mjml?: string; // MJML source code
 
   @IsString()
-  css: string;
+  @IsOptional()
+  html?: string;
+
+  @IsString()
+  @IsOptional()
+  css?: string;
 
   @IsOptional()
   components?: any;

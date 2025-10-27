@@ -17,10 +17,13 @@ export class Template {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
+  mjml: string; // MJML source code
+
+  @Column({ type: 'text', nullable: true })
   html: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   css: string;
 
   @Column({ type: 'jsonb', nullable: true })

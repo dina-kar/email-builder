@@ -3,11 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import grapesjs from 'grapesjs';
-import juice from 'juice';
+import grapesjsMJML from 'grapesjs-mjml';
 import { TemplateService, Template } from '../services/template.service';
 import { environment } from '../../environments/environment';
-
-import { ALL_EMAIL_BLOCKS, EMAIL_BLOCKS } from './email-blocks.config';
 
 declare global {
   interface Window {
@@ -75,17 +73,16 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (template: Template) => {
         this.templateName.set(template.name);
         
-        // Load template content into editor
-        if (template.components) {
+        // Load MJML content into editor
+        if (template.mjml) {
+          this.editor.setComponents(template.mjml);
+        } else if (template.components) {
+          // Fallback to components if MJML not available
           this.editor.setComponents(template.components);
-        } else if (template.html) {
-          this.editor.setComponents(template.html);
         }
         
         if (template.styles) {
           this.editor.setStyle(template.styles);
-        } else if (template.css) {
-          this.editor.setStyle(template.css);
         }
         
         this.lastSaved.set(new Date(template.updatedAt));
@@ -102,8 +99,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.templateId) return;
     
     const updateData = {
-      html: this.editor.getHtml(),
-      css: this.editor.getCss(),
+      mjml: this.editor.getHtml(), // Store MJML code
       components: JSON.parse(JSON.stringify(this.editor.getComponents())),
       styles: JSON.parse(JSON.stringify(this.editor.getStyle()))
     };
@@ -119,9 +115,6 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initializeEditor(): void {
-    // Remove Email Container block from the left panel; we'll load it by default
-    const blocks = ALL_EMAIL_BLOCKS.filter(b => b.id !== 'email-container');
-
     this.editor = grapesjs.init({
       container: '#gjs',
       height: '100%',
@@ -147,6 +140,27 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           },
         },
       },
+      deviceManager: {
+        devices: [
+          {
+            id: 'desktop',
+            name: 'Desktop',
+            width: '', // Default width
+          },
+          {
+            id: 'tablet',
+            name: 'Tablet',
+            width: '768px',
+            widthMedia: '768px',
+          },
+          {
+            id: 'mobilePortrait',
+            name: 'Mobile portrait',
+            width: '375px',
+            widthMedia: '480px',
+          },
+        ],
+      },
       assetManager: {
         upload: `${environment.apiUrl}/templates/upload/asset`,
         uploadName: 'file',
@@ -161,33 +175,26 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           // Additional params if needed
         },
       },
-      deviceManager: {
-        devices: [
-          {
-            id: 'desktop',
-            name: 'Desktop',
-            width: '',
-          },
-          {
-            id: 'tablet',
-            name: 'Tablet',
-            width: '768px',
-            widthMedia: '992px',
-          },
-          {
-            id: 'mobile',
-            name: 'Mobile',
-            width: '375px',
-            widthMedia: '768px',
-          },
-        ],
+      plugins: [grapesjsMJML],
+      pluginsOpts: {
+        [grapesjsMJML as any]: {
+          // MJML Plugin options
+          resetBlocks: true,
+          resetDevices: false,
+          resetStyleManager: true,
+          hideSelector: true,
+          columnsPadding: '10px 0',
+          useCustomTheme: true,
+          imagePlaceholderSrc: 'https://via.placeholder.com/350x250/78c5d6/fff',
+          // Overwrite default export to use our custom export command
+          overwriteExport: false,
+        }
       },
       panels: {
-        defaults: [],
+        defaults: []
       },
       blockManager: {
         appendTo: '#blocks-container',
-        blocks,
       },
       layerManager: {
         appendTo: '#layers-container',
@@ -197,215 +204,6 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       styleManager: {
         appendTo: '#styles-container',
-        sectors: [
-          {
-            name: 'Layout',
-            open: true,
-            properties: [
-              {
-                name: 'Width',
-                property: 'width',
-                type: 'integer',
-                units: ['px', '%'],
-                min: 0,
-              } as any,
-              {
-                name: 'Height',
-                property: 'height',
-                type: 'integer',
-                units: ['px', 'auto'],
-                min: 0,
-              } as any,
-              {
-                name: 'Max Width',
-                property: 'max-width',
-                type: 'integer',
-                units: ['px', '%'],
-                min: 0,
-              } as any,
-              {
-                name: 'Display',
-                property: 'display',
-                type: 'select',
-                defaults: 'block',
-                options: [
-                  { id: 'block', value: 'block', name: 'Block' },
-                  { id: 'inline', value: 'inline', name: 'Inline' },
-                  { id: 'inline-block', value: 'inline-block', name: 'Inline Block' },
-                  { id: 'table', value: 'table', name: 'Table' },
-                  { id: 'table-cell', value: 'table-cell', name: 'Table Cell' },
-                  { id: 'none', value: 'none', name: 'None' },
-                ],
-              } as any,
-            ],
-          },
-          {
-            name: 'Spacing',
-            open: false,
-            properties: [
-              'padding',
-              'margin',
-            ],
-          },
-          {
-            name: 'Typography',
-            open: false,
-            properties: [
-              {
-                name: 'Font Family',
-                property: 'font-family',
-                type: 'select',
-                defaults: 'Arial, sans-serif',
-                options: [
-                  { id: 'arial', value: 'Arial, sans-serif', name: 'Arial' },
-                  { id: 'helvetica', value: "'Helvetica Neue', Helvetica, sans-serif", name: 'Helvetica' },
-                  { id: 'times', value: "'Times New Roman', Times, serif", name: 'Times New Roman' },
-                  { id: 'georgia', value: 'Georgia, serif', name: 'Georgia' },
-                  { id: 'courier', value: "'Courier New', Courier, monospace", name: 'Courier New' },
-                  { id: 'verdana', value: 'Verdana, sans-serif', name: 'Verdana' },
-                  { id: 'tahoma', value: 'Tahoma, sans-serif', name: 'Tahoma' },
-                  { id: 'trebuchet', value: "'Trebuchet MS', sans-serif", name: 'Trebuchet MS' },
-                ],
-              } as any,
-              'font-size',
-              {
-                name: 'Font Weight',
-                property: 'font-weight',
-                type: 'select',
-                defaults: 'normal',
-                options: [
-                  { id: 'normal', value: 'normal', name: 'Normal' },
-                  { id: 'bold', value: 'bold', name: 'Bold' },
-                  { id: '100', value: '100', name: 'Thin (100)' },
-                  { id: '300', value: '300', name: 'Light (300)' },
-                  { id: '400', value: '400', name: 'Regular (400)' },
-                  { id: '500', value: '500', name: 'Medium (500)' },
-                  { id: '600', value: '600', name: 'Semi Bold (600)' },
-                  { id: '700', value: '700', name: 'Bold (700)' },
-                  { id: '900', value: '900', name: 'Black (900)' },
-                ],
-              } as any,
-              'color',
-              'line-height',
-              'letter-spacing',
-              'text-align',
-              'text-decoration',
-              {
-                name: 'Font Style',
-                property: 'font-style',
-                type: 'radio',
-                defaults: 'normal',
-                options: [
-                  { id: 'normal', value: 'normal', name: 'Normal' },
-                  { id: 'italic', value: 'italic', name: 'Italic' },
-                ],
-              } as any,
-              {
-                name: 'Text Transform',
-                property: 'text-transform',
-                type: 'select',
-                defaults: 'none',
-                options: [
-                  { id: 'none', value: 'none', name: 'None' },
-                  { id: 'uppercase', value: 'uppercase', name: 'Uppercase' },
-                  { id: 'lowercase', value: 'lowercase', name: 'Lowercase' },
-                  { id: 'capitalize', value: 'capitalize', name: 'Capitalize' },
-                ],
-              } as any,
-            ],
-          },
-          {
-            name: 'Background',
-            open: false,
-            properties: [
-              'background-color',
-              {
-                name: 'Background Image',
-                property: 'background-image',
-                type: 'text',
-                defaults: 'none',
-              } as any,
-              {
-                name: 'Background Repeat',
-                property: 'background-repeat',
-                type: 'select',
-                defaults: 'repeat',
-                options: [
-                  { id: 'repeat', value: 'repeat', name: 'Repeat' },
-                  { id: 'repeat-x', value: 'repeat-x', name: 'Repeat X' },
-                  { id: 'repeat-y', value: 'repeat-y', name: 'Repeat Y' },
-                  { id: 'no-repeat', value: 'no-repeat', name: 'No Repeat' },
-                ],
-              } as any,
-              {
-                name: 'Background Position',
-                property: 'background-position',
-                type: 'select',
-                defaults: 'left top',
-                options: [
-                  { id: 'left-top', value: 'left top', name: 'Left Top' },
-                  { id: 'left-center', value: 'left center', name: 'Left Center' },
-                  { id: 'left-bottom', value: 'left bottom', name: 'Left Bottom' },
-                  { id: 'center-top', value: 'center top', name: 'Center Top' },
-                  { id: 'center-center', value: 'center center', name: 'Center Center' },
-                  { id: 'center-bottom', value: 'center bottom', name: 'Center Bottom' },
-                  { id: 'right-top', value: 'right top', name: 'Right Top' },
-                  { id: 'right-center', value: 'right center', name: 'Right Center' },
-                  { id: 'right-bottom', value: 'right bottom', name: 'Right Bottom' },
-                ],
-              } as any,
-              {
-                name: 'Background Size',
-                property: 'background-size',
-                type: 'select',
-                defaults: 'auto',
-                options: [
-                  { id: 'auto', value: 'auto', name: 'Auto' },
-                  { id: 'cover', value: 'cover', name: 'Cover' },
-                  { id: 'contain', value: 'contain', name: 'Contain' },
-                ],
-              } as any,
-            ],
-          },
-          {
-            name: 'Border',
-            open: false,
-            properties: [
-              'border',
-              'border-radius',
-            ],
-          },
-          {
-            name: 'Table Styles',
-            open: false,
-            properties: [
-              {
-                name: 'Vertical Align',
-                property: 'vertical-align',
-                type: 'select',
-                defaults: 'top',
-                options: [
-                  { id: 'top', value: 'top', name: 'Top' },
-                  { id: 'middle', value: 'middle', name: 'Middle' },
-                  { id: 'bottom', value: 'bottom', name: 'Bottom' },
-                  { id: 'baseline', value: 'baseline', name: 'Baseline' },
-                ],
-              } as any,
-              {
-                name: 'White Space',
-                property: 'white-space',
-                type: 'select',
-                defaults: 'normal',
-                options: [
-                  { id: 'normal', value: 'normal', name: 'Normal' },
-                  { id: 'nowrap', value: 'nowrap', name: 'No Wrap' },
-                  { id: 'pre', value: 'pre', name: 'Pre' },
-                  { id: 'pre-wrap', value: 'pre-wrap', name: 'Pre Wrap' },
-                ],
-              } as any,
-            ],
-          },
-        ],
       },
       traitManager: {
         appendTo: '#traits-container',
@@ -414,44 +212,205 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         styles: [],
         scripts: [],
       },
-      pluginsOpts: {},
     });
 
     // Add custom commands
     this.addCustomCommands();
     
-    // Add custom component types for columns
-    this.addCustomComponentTypes();
-    
-    // Add selection event listener to auto-select column containers
-    this.setupColumnSelection();
+    // Add custom MJML blocks
+    this.addCustomMJMLBlocks();
 
-    // Default canvas content: Email Container when creating a new template
+    // MJML plugin will handle the default template
     this.editor.on('load', () => {
       if (!this.templateId) {
         const hasContent = this.editor.getComponents().length > 0;
         if (!hasContent) {
-          const emailContainer = EMAIL_BLOCKS.find(b => b.id === 'email-container');
-          if (emailContainer) {
-            this.editor.setComponents(emailContainer.content);
-          }
+          // Set a basic MJML template
+          this.editor.setComponents(`<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Start building your email here...</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`);
         }
       }
     });
   }
 
-  private addCustomCommands(): void {
-    // Device commands
-    this.editor.Commands.add('set-device-desktop', {
-      run: (editor: any) => editor.setDevice('Desktop'),
-    });
-    this.editor.Commands.add('set-device-tablet', {
-      run: (editor: any) => editor.setDevice('Tablet'),
-    });
-    this.editor.Commands.add('set-device-mobile', {
-      run: (editor: any) => editor.setDevice('Mobile'),
+  private addCustomMJMLBlocks(): void {
+    const bm = this.editor.BlockManager;
+
+    // Article Block
+    bm.add('article-block', {
+      label: 'Article',
+      content: `
+        <mj-section padding="20px">
+          <mj-column>
+            <mj-image src="https://via.placeholder.com/600x300/F59E0B/FFFFFF?text=Article+Image" alt="Article" />
+            <mj-text font-size="24px" font-weight="bold" padding-top="20px">
+              Article Title
+            </mj-text>
+            <mj-text font-size="14px" color="#666666" line-height="1.6">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </mj-text>
+            <mj-button background-color="#F59E0B" href="#">
+              Read More
+            </mj-button>
+          </mj-column>
+        </mj-section>
+      `,
+      media: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>`
     });
 
+    // Feature List Block
+    bm.add('feature-list', {
+      label: 'Feature List',
+      content: `
+        <mj-section background-color="#F9FAFB" padding="30px">
+          <mj-column width="33.33%">
+            <mj-image src="https://via.placeholder.com/100/F59E0B/FFFFFF?text=1" alt="Feature 1" width="80px" />
+            <mj-text align="center" font-weight="bold" font-size="18px">
+              Feature One
+            </mj-text>
+            <mj-text align="center" font-size="14px" color="#666666">
+              Description of feature one
+            </mj-text>
+          </mj-column>
+          <mj-column width="33.33%">
+            <mj-image src="https://via.placeholder.com/100/FBBF24/FFFFFF?text=2" alt="Feature 2" width="80px" />
+            <mj-text align="center" font-weight="bold" font-size="18px">
+              Feature Two
+            </mj-text>
+            <mj-text align="center" font-size="14px" color="#666666">
+              Description of feature two
+            </mj-text>
+          </mj-column>
+          <mj-column width="33.33%">
+            <mj-image src="https://via.placeholder.com/100/D97706/FFFFFF?text=3" alt="Feature 3" width="80px" />
+            <mj-text align="center" font-weight="bold" font-size="18px">
+              Feature Three
+            </mj-text>
+            <mj-text align="center" font-size="14px" color="#666666">
+              Description of feature three
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      `,
+      media: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 13h8v8H3zm10 0h8v8h-8zM3 3h8v8H3zm15 0v8h-5V3z"/></svg>`
+    });
+
+    // Testimonial Block
+    bm.add('testimonial', {
+      label: 'Testimonial',
+      content: `
+        <mj-section background-color="#FEF3C7" padding="30px">
+          <mj-column>
+            <mj-text align="center" font-size="18px" font-style="italic" color="#92400E">
+              "This is an amazing product! It has completely transformed the way we work."
+            </mj-text>
+            <mj-text align="center" font-weight="bold" padding-top="10px">
+              - John Doe, CEO
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      `,
+      media: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>`
+    });
+
+    // CTA Banner Block
+    bm.add('cta-banner', {
+      label: 'CTA Banner',
+      content: `
+        <mj-section background-color="#F59E0B" padding="40px">
+          <mj-column>
+            <mj-text align="center" font-size="28px" font-weight="bold" color="#ffffff">
+              Ready to Get Started?
+            </mj-text>
+            <mj-text align="center" font-size="16px" color="#ffffff" padding-top="10px">
+              Join thousands of satisfied customers today
+            </mj-text>
+            <mj-button background-color="#ffffff" color="#F59E0B" font-weight="bold" href="#">
+              Sign Up Now
+            </mj-button>
+          </mj-column>
+        </mj-section>
+      `,
+      media: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M21 3H3v18h18V3zm-2 16H5V5h14v14z"/></svg>`
+    });
+
+    // Product Showcase Block
+    bm.add('product-showcase', {
+      label: 'Product Showcase',
+      content: `
+        <mj-section padding="20px">
+          <mj-column width="40%">
+            <mj-image src="https://via.placeholder.com/400x400/F59E0B/FFFFFF?text=Product" alt="Product" />
+          </mj-column>
+          <mj-column width="60%">
+            <mj-text font-size="24px" font-weight="bold">
+              Product Name
+            </mj-text>
+            <mj-text font-size="18px" color="#F59E0B" font-weight="bold" padding="10px 0">
+              $99.99
+            </mj-text>
+            <mj-text font-size="14px" color="#666666" line-height="1.6">
+              Discover our latest product with amazing features and benefits. Perfect for all your needs.
+            </mj-text>
+            <mj-button background-color="#F59E0B" href="#">
+              Buy Now
+            </mj-button>
+          </mj-column>
+        </mj-section>
+      `,
+      media: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>`
+    });
+
+    // Footer Block
+    bm.add('footer-block', {
+      label: 'Footer',
+      content: `
+        <mj-section background-color="#111827" padding="30px">
+          <mj-column>
+            <mj-social font-size="15px" icon-size="30px" mode="horizontal" align="center">
+              <mj-social-element name="facebook" href="#" />
+              <mj-social-element name="twitter" href="#" />
+              <mj-social-element name="instagram" href="#" />
+              <mj-social-element name="linkedin" href="#" />
+            </mj-social>
+            <mj-text align="center" color="#ffffff" font-size="12px" padding-top="20px">
+              © 2025 Your Company. All rights reserved.
+            </mj-text>
+            <mj-text align="center" color="#9CA3AF" font-size="11px">
+              123 Street Name, City, ST 12345
+            </mj-text>
+            <mj-text align="center" font-size="11px" padding-top="10px">
+              <a href="#" style="color: #F59E0B; text-decoration: none;">Unsubscribe</a> | 
+              <a href="#" style="color: #F59E0B; text-decoration: none;">Preferences</a>
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      `,
+      media: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 20h16v-2H4v2zm0-4h16v-2H4v2zm0-6v2h16V10H4zm0-4v2h16V6H4z"/></svg>`
+    });
+
+    // Divider Block
+    bm.add('styled-divider', {
+      label: 'Styled Divider',
+      content: `
+        <mj-section padding="20px">
+          <mj-column>
+            <mj-divider border-color="#F59E0B" border-width="3px" width="100px" />
+          </mj-column>
+        </mj-section>
+      `,
+      media: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 11h18v2H3z"/></svg>`
+    });
+  }
+
+  private addCustomCommands(): void {
     // Save command
     this.editor.Commands.add('save-db', {
       run: (editor: any) => {
@@ -466,8 +425,8 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         modal.setTitle('Import Email Template');
         modal.setContent(`
           <div style="padding: 20px;">
-            <p style="margin-bottom: 10px; color: #374151;">Paste your email template HTML code here:</p>
-            <textarea id="import-html" style="width: 100%; height: 300px; padding: 10px; border: 1px solid #E5E7EB; border-radius: 4px; font-family: monospace; resize: vertical;" placeholder="Paste your HTML template here..."></textarea>
+            <p style="margin-bottom: 10px; color: #374151;">Paste your MJML or HTML template code here:</p>
+            <textarea id="import-html" style="width: 100%; height: 300px; padding: 10px; border: 1px solid #E5E7EB; border-radius: 4px; font-family: monospace; resize: vertical;" placeholder="Paste your MJML or HTML template here..."></textarea>
             <div style="margin-top: 20px; text-align: right;">
               <button id="cancel-import-btn" style="padding: 8px 16px; background-color: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Cancel</button>
               <button id="import-btn" style="padding: 8px 16px; background-color: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer;">Import Template</button>
@@ -483,13 +442,32 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           });
 
           document.getElementById('import-btn')?.addEventListener('click', () => {
-            const html = (document.getElementById('import-html') as HTMLTextAreaElement)?.value;
-            if (html && html.trim()) {
-              editor.setComponents(html);
+            const code = (document.getElementById('import-html') as HTMLTextAreaElement)?.value;
+            if (code && code.trim()) {
+              // Check if it's MJML or HTML
+              const isMJML = code.trim().toLowerCase().includes('<mjml') || 
+                            code.trim().toLowerCase().includes('<mj-');
+              
+              if (isMJML) {
+                // Import MJML directly
+                editor.setComponents(code);
+              } else {
+                // Try to wrap HTML in MJML structure
+                const wrappedMJML = `<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>${code}</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`;
+                editor.setComponents(wrappedMJML);
+              }
               modal.close();
               alert('✅ Template imported successfully!');
             } else {
-              alert('⚠️ Please paste some HTML code first.');
+              alert('⚠️ Please paste some code first.');
             }
           });
         }, 100);
@@ -500,677 +478,289 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editor.Commands.add('clear-canvas', {
       run: (editor: any) => {
         if (confirm('⚠️ Are you sure you want to clear the canvas? This cannot be undone.')) {
-          editor.setComponents('');
-          editor.setStyle('');
+          // Set a basic MJML template
+          editor.setComponents(`<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Start building your email here...</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`);
         }
       },
     });
 
-    // Export template command (use juice only for export)
+    // Export template command (MJML to HTML conversion)
     this.editor.Commands.add('export-template', {
       run: (editor: any) => {
-        const html = editor.getHtml();
-        const css = editor.getCss();
+        try {
+          // Get MJML code
+          const mjmlCode = editor.getHtml();
+          
+          // Get the compiled HTML from canvas
+          const iframe = editor.Canvas.getFrameEl();
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          const mjmlElement = iframeDoc.querySelector('[data-gjs-type="mjml"]');
+          
+          let html = '';
+          if (mjmlElement) {
+            html = mjmlElement.innerHTML;
+          } else {
+            // Fallback to getting body content
+            const bodyContent = iframeDoc.body.innerHTML;
+            html = bodyContent;
+          }
 
-        // Create the full HTML with styles in head
-        let fullHtml = `<!DOCTYPE html>
+          // Create the full HTML document
+          let fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Email Template</title>
-  <style>${css}</style>
 </head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif;">
+<body style="margin: 0; padding: 0;">
   ${html}
 </body>
 </html>`;
 
-        // Use juice to inline CSS for email compatibility
-        try {
-          fullHtml = juice(fullHtml);
+          const blob = new Blob([fullHtml], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'email-template-' + Date.now() + '.html';
+          link.click();
+          URL.revokeObjectURL(url);
+
+          alert('✅ Email template exported successfully!');
         } catch (error) {
-          console.error('Error inlining styles:', error);
-          alert('⚠️ Warning: Could not inline all styles. Exported with <style> tag instead.');
+          console.error('Error exporting template:', error);
+          alert('⚠️ Error exporting template. Please try again.');
         }
+      },
+    });
 
-        const blob = new Blob([fullHtml], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'email-template-' + Date.now() + '.html';
-        link.click();
-        URL.revokeObjectURL(url);
+    // View MJML Code command
+    this.editor.Commands.add('view-mjml', {
+      run: (editor: any) => {
+        const modal = editor.Modal;
+        const mjmlCode = editor.getHtml();
+        
+        modal.setTitle('MJML Code');
+        modal.setContent(`
+          <div style="padding: 20px;">
+            <p style="margin-bottom: 10px; color: #374151;">MJML source code:</p>
+            <textarea readonly id="mjml-code-view" style="width: 100%; height: 400px; padding: 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px; resize: vertical; background: #F9FAFB;">${mjmlCode}</textarea>
+            <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <button id="copy-mjml-btn" style="padding: 8px 16px; background-color: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                Copy to Clipboard
+              </button>
+              <button id="close-mjml-btn" style="padding: 8px 16px; background-color: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                Close
+              </button>
+            </div>
+          </div>
+        `);
+        modal.open();
 
-        alert('✅ Email template exported successfully with inlined CSS!');
+        setTimeout(() => {
+          document.getElementById('copy-mjml-btn')?.addEventListener('click', () => {
+            const textarea = document.getElementById('mjml-code-view') as HTMLTextAreaElement;
+            textarea.select();
+            document.execCommand('copy');
+            alert('✅ MJML code copied to clipboard!');
+          });
+
+          document.getElementById('close-mjml-btn')?.addEventListener('click', () => {
+            modal.close();
+          });
+        }, 100);
+      },
+    });
+
+    // View HTML Code command
+    this.editor.Commands.add('view-html', {
+      run: (editor: any) => {
+        const modal = editor.Modal;
+        
+        try {
+          // Get the compiled HTML from MJML using the correct method
+          const mjmlCode = editor.getHtml();
+          
+          // Use MJML parser to compile
+          let htmlCode = '';
+          if (typeof (window as any).mjml2html !== 'undefined') {
+            const result = (window as any).mjml2html(mjmlCode);
+            htmlCode = result.html || '';
+          } else {
+            // Fallback: try to get from editor's internal compilation
+            const components = editor.DomComponents.getWrapper();
+            const mjmlComponent = components.find('[data-gjs-type="mjml"]')[0];
+            if (mjmlComponent) {
+              htmlCode = mjmlComponent.view?.el?.innerHTML || editor.getHtml();
+            } else {
+              htmlCode = editor.getHtml();
+            }
+          }
+          
+          const escapedHtml = htmlCode.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          
+          modal.setTitle('Compiled HTML Code');
+          modal.setContent(`
+            <div style="padding: 20px;">
+              <p style="margin-bottom: 10px; color: #374151;">Production-ready HTML code with inlined CSS:</p>
+              <textarea readonly id="html-code-view" style="width: 100%; height: 400px; padding: 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px; resize: vertical; background: #F9FAFB;">${htmlCode}</textarea>
+              <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+                <button id="copy-html-btn" style="padding: 8px 16px; background-color: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                  Copy to Clipboard
+                </button>
+                <button id="close-html-btn" style="padding: 8px 16px; background-color: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                  Close
+                </button>
+              </div>
+            </div>
+          `);
+          modal.open();
+
+          setTimeout(() => {
+            document.getElementById('copy-html-btn')?.addEventListener('click', () => {
+              const textarea = document.getElementById('html-code-view') as HTMLTextAreaElement;
+              textarea.select();
+              document.execCommand('copy');
+              alert('✅ HTML code copied to clipboard!');
+            });
+
+            document.getElementById('close-html-btn')?.addEventListener('click', () => {
+              modal.close();
+            });
+          }, 100);
+        } catch (error) {
+          console.error('Error getting HTML:', error);
+          alert('⚠️ Error compiling MJML to HTML. Please check your MJML structure.');
+        }
+      },
+    });
+
+    // View Components (Visual Tree) command
+    this.editor.Commands.add('view-components', {
+      run: (editor: any) => {
+        const modal = editor.Modal;
+        
+        // Parse MJML structure to create a visual tree
+        const mjmlCode = editor.getHtml();
+        const visualTree = this.generateVisualTree(mjmlCode);
+        
+        modal.setTitle('Email Structure');
+        modal.setContent(`
+          <div style="padding: 20px;">
+            <p style="margin-bottom: 10px; color: #374151;">Your email template structure:</p>
+            <div id="components-view" style="width: 100%; height: 400px; padding: 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px; overflow: auto; background: #F9FAFB; line-height: 1.6;">${visualTree}</div>
+            <div style="margin-top: 16px; display: flex; justify-content: flex-end; align-items: center;">
+              <button id="close-components-btn" style="padding: 8px 16px; background-color: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                Close
+              </button>
+            </div>
+          </div>
+        `);
+        modal.open();
+
+        setTimeout(() => {
+          document.getElementById('close-components-btn')?.addEventListener('click', () => {
+            modal.close();
+          });
+        }, 100);
       },
     });
   }
 
-  private addCustomComponentTypes(): void {
-    const editor = this.editor;
+  private generateVisualTree(mjmlCode: string): string {
+    // Parse MJML and create a visual tree representation with dotted lines
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(mjmlCode, 'text/html');
     
-    // Define custom flexible column layout component
-    editor.DomComponents.addType('flexible-columns', {
-      isComponent: (el: any) => {
-        // Check for data-gjs-type OR data-column-count attribute
-        return el.getAttribute?.('data-gjs-type') === 'flexible-columns' ||
-               (el.tagName === 'DIV' && el.getAttribute?.('data-column-count'));
-      },
-      model: {
-        defaults: {
-          name: 'Flexible Columns',
-          droppable: true,
-          stylable: true,
-          tagName: 'div',
-          attributes: { 
-            'data-gjs-type': 'flexible-columns',
-            'data-column-count': '2',
-            'data-column-align': 'top',
-            'data-column-padding': '20',
-            'data-bg-color': '',
-            'data-column-spacing': '0'
-          },
-          traits: [
-            {
-              type: 'select',
-              label: 'Number of Columns',
-              name: 'data-column-count',
-              options: [
-                { id: '1', name: '1 Column' },
-                { id: '2', name: '2 Columns' },
-                { id: '3', name: '3 Columns' },
-                { id: '4', name: '4 Columns' },
-              ]
-            },
-            {
-              type: 'select',
-              label: 'Column Alignment',
-              name: 'data-column-align',
-              options: [
-                { id: 'top', name: 'Top' },
-                { id: 'middle', name: 'Middle' },
-                { id: 'bottom', name: 'Bottom' },
-              ]
-            },
-            {
-              type: 'color',
-              label: 'Background Color',
-              name: 'data-bg-color',
-            },
-            {
-              type: 'number',
-              label: 'Column Padding (px)',
-              name: 'data-column-padding',
-              min: 0,
-              max: 100,
-            }
-          ],
-        },
-        init() {
-          // Listen to attribute changes on this component
-          const model = this as any;
-          let debounceTimer: any = null;
-          
-          model.on('change:attributes', () => {
-            // Debounce to prevent excessive rebuilds
-            if (debounceTimer) clearTimeout(debounceTimer);
-            
-            debounceTimer = setTimeout(() => {
-              if (model.view && model.view.el && !model.get('rebuilding')) {
-                model.trigger('custom:update');
-              }
-            }, 150);
-          });
+    let tree = '';
+    let indent = 0;
+    
+    const buildTree = (node: Element, level: number) => {
+      const tagName = node.tagName.toLowerCase();
+      
+      // Skip text nodes and non-mjml tags
+      if (!tagName.startsWith('mj-')) return;
+      
+      const indentStr = '│   '.repeat(level);
+      const connector = level > 0 ? '├── ' : '';
+      
+      // Get relevant attributes
+      const attrs: string[] = [];
+      if (node.hasAttribute('background-color')) {
+        attrs.push(`bg: ${node.getAttribute('background-color')}`);
+      }
+      if (node.hasAttribute('color')) {
+        attrs.push(`color: ${node.getAttribute('color')}`);
+      }
+      if (node.hasAttribute('font-size')) {
+        attrs.push(`size: ${node.getAttribute('font-size')}`);
+      }
+      if (node.hasAttribute('padding')) {
+        attrs.push(`padding: ${node.getAttribute('padding')}`);
+      }
+      if (node.hasAttribute('width')) {
+        attrs.push(`width: ${node.getAttribute('width')}`);
+      }
+      
+      const attrStr = attrs.length > 0 ? ` <span style="color: #6B7280;">[${attrs.join(', ')}]</span>` : '';
+      
+      // Get text content for text elements
+      let textContent = '';
+      if (tagName === 'mj-text' || tagName === 'mj-button') {
+        const text = node.textContent?.trim().substring(0, 50);
+        if (text) {
+          textContent = ` <span style="color: #10B981;">"${text}${text.length >= 50 ? '...' : ''}"</span>`;
         }
       }
-    });
+      
+      const tagColor = this.getTagColor(tagName);
+      tree += `${indentStr}${connector}<span style="color: ${tagColor}; font-weight: 600;">&lt;${tagName}&gt;</span>${attrStr}${textContent}\n`;
+      
+      // Process children
+      const children = Array.from(node.children);
+      children.forEach((child, index) => {
+        buildTree(child as Element, level + 1);
+      });
+    };
     
-    // Add class to individual column divs for easier identification
-    editor.DomComponents.addType('email-column-div', {
-      isComponent: (el: any) => {
-        if (el.tagName === 'DIV') {
-          const className = el.getAttribute('class') || '';
-          const dataIndex = el.getAttribute('data-column-index');
-          return className.includes('email-column') || dataIndex !== null;
-        }
-        return false;
-      },
-      model: {
-        defaults: {
-          name: 'Column',
-          droppable: true,
-          stylable: true,
-          highlightable: true,
-          attributes: { class: 'email-column', 'data-col-padding': '20', 'data-col-bg': '', 'data-col-valign': 'top' },
-          traits: [
-            {
-              type: 'number',
-              label: 'Padding (px)',
-              name: 'data-col-padding',
-              min: 0,
-              max: 100,
-            },
-            {
-              type: 'color',
-              label: 'Background',
-              name: 'data-col-bg',
-            },
-            {
-              type: 'select',
-              label: 'Vertical Align',
-              name: 'data-col-valign',
-              options: [
-                { id: 'top', name: 'Top' },
-                { id: 'middle', name: 'Middle' },
-                { id: 'bottom', name: 'Bottom' },
-              ],
-            },
-          ]
-        },
-        init() {
-          // Listen to attribute changes on this column
-          const model = this as any;
-          let debounceTimer: any = null;
-          
-          model.on('change:attributes', () => {
-            // Debounce to prevent excessive updates
-            if (debounceTimer) clearTimeout(debounceTimer);
-            
-            debounceTimer = setTimeout(() => {
-              if (model.view && model.view.el && !model.get('applying-attributes')) {
-                model.trigger('custom:column-update');
-              }
-            }, 100);
-          });
-        }
-      }
-    });
+    // Find the root mjml element
+    const mjmlRoot = doc.querySelector('mjml') || doc.documentElement;
+    if (mjmlRoot) {
+      buildTree(mjmlRoot as Element, 0);
+    }
     
-    // Listen to updates for flexible-columns and individual column props
-    editor.on('component:update', (component: any) => {
-      const t = component.get('type');
-      if (t === 'flexible-columns') {
-        this.handleColumnUpdate(component);
-      } else if (t === 'email-column-div') {
-        this.applyEmailColumnAttributes(component);
-      }
-    });
-    
-    // Listen to trait changes via attribute changes
-    editor.on('component:update:attributes', (component: any) => {
-      const t = component.get('type');
-      if (t === 'flexible-columns') {
-        this.handleColumnUpdate(component);
-      } else if (t === 'email-column-div') {
-        this.applyEmailColumnAttributes(component);
-      }
-    });
-    
-    // Listen to custom events from component models
-    editor.on('component:custom:update', (component: any) => {
-      this.handleColumnUpdate(component);
-    });
-    
-    editor.on('component:custom:column-update', (component: any) => {
-      this.applyEmailColumnAttributes(component);
-    });
+    return tree || '<span style="color: #6B7280;">No MJML structure found</span>';
   }
   
-  private handleColumnUpdate(component: any): void {
-    // Avoid unnecessary rebuilds/infinite loops
-    if (component.get('rebuilding')) return;
-
-    const attrs = component.getAttributes();
-    const count = parseInt(attrs['data-column-count'] || '2');
-    const valign = attrs['data-column-align'] || 'top';
-    const bgColor = attrs['data-bg-color'] || '';
-    const padding = parseInt(attrs['data-column-padding'] || '20');
-    const fingerprint = `${count}|${valign}|${bgColor}|${padding}`;
-
-    const currentCols = component.find('.email-column');
-    if (component.get('lastColumnConfig') === fingerprint && currentCols.length === count) {
-      return;
-    }
-    component.set('rebuilding', true);
-
-    const maxWidth = 600;
-    const columnWidth = Math.floor(maxWidth / count);
+  private getTagColor(tagName: string): string {
+    const colorMap: { [key: string]: string } = {
+      'mjml': '#F59E0B',
+      'mj-body': '#EC4899',
+      'mj-head': '#8B5CF6',
+      'mj-section': '#3B82F6',
+      'mj-column': '#06B6D4',
+      'mj-group': '#14B8A6',
+      'mj-text': '#10B981',
+      'mj-button': '#84CC16',
+      'mj-image': '#EAB308',
+      'mj-divider': '#6366F1',
+      'mj-spacer': '#A855F7',
+      'mj-social': '#EC4899',
+      'mj-navbar': '#F59E0B',
+      'mj-hero': '#EF4444',
+      'mj-wrapper': '#8B5CF6',
+    };
     
-    // Preserve inner content per column index
-    const preserved: Record<number, any[]> = {};
-    currentCols.forEach((col: any) => {
-      const idx = parseInt(col.getAttributes()['data-column-index'] || '0');
-      const innerTable = col.find('table')[0];
-      const innerTd = innerTable ? innerTable.find('td')[0] : null;
-      const items = innerTd ? innerTd.components().map((c: any) => c.clone()) : [];
-      preserved[idx] = items;
-    });
-    
-    // Generate MSO columns for Outlook
-    let msoColumns = '';
-    for (let i = 0; i < count; i++) {
-      const bgStyle = bgColor ? `background-color:${bgColor};` : '';
-      msoColumns += `<td width="${columnWidth}" valign="${valign}">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr><td style="padding:${padding}px; ${bgStyle}"></td></tr>
-  </table>
-</td>`;
-    }
-    
-    // Clear existing components
-    component.components('');
-    
-    // Create the wrapper table
-    const table = component.append({
-      type: 'default',
-      tagName: 'table',
-      attributes: {
-        role: 'presentation',
-        width: '100%',
-        cellpadding: '0',
-        cellspacing: '0',
-        border: '0'
-      },
-      selectable: false,
-      hoverable: false,
-      highlightable: false,
-      layerable: false,
-      droppable: false,
-    })[0];
-    
-    const tr = table.append({ 
-      tagName: 'tr',
-      selectable: false,
-      hoverable: false,
-      highlightable: false,
-      layerable: false,
-      droppable: false,
-    })[0];
-    
-    const td = tr.append({
-      tagName: 'td',
-      attributes: {
-        align: 'center',
-        style: 'padding:0 20px; font-size:0;'
-      },
-      selectable: false,
-      hoverable: false,
-      highlightable: false,
-      layerable: false,
-      droppable: false,
-    })[0];
-    
-    // Add MSO conditional comment
-    td.append({
-      type: 'comment',
-      content: `[if mso]>
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0">
-        <tr>${msoColumns}</tr>
-      </table>
-      <![endif]`
-    });
-    
-    // Create column divs as proper GrapesJS components
-    for (let i = 0; i < count; i++) {
-      const bgStyle = bgColor ? `background-color:${bgColor};` : '';
-      
-      const columnDiv = td.append({
-        type: 'email-column-div',
-        tagName: 'div',
-        name: `Column ${i + 1}`,
-        attributes: {
-          class: 'email-column',
-          'data-column-index': i.toString(),
-          'data-col-padding': padding.toString(),
-          'data-col-bg': bgColor,
-          'data-col-valign': valign,
-          style: `display:inline-block; vertical-align:${valign}; width:100%; max-width:${columnWidth}px;`
-        },
-        droppable: false, // Don't drop directly on the column div
-        selectable: true,
-        hoverable: true,
-        highlightable: true,
-      })[0];
-      
-      const colTable = columnDiv.append({
-        tagName: 'table',
-        attributes: {
-          role: 'presentation',
-          width: '100%',
-          cellpadding: '0',
-          cellspacing: '0',
-          border: '0'
-        },
-        selectable: false,
-        hoverable: false,
-        highlightable: false,
-        layerable: false,
-        droppable: false,
-      })[0];
-      
-      const colTr = colTable.append({ 
-        tagName: 'tr',
-        selectable: false,
-        hoverable: false,
-        highlightable: false,
-        layerable: false,
-        droppable: false,
-      })[0];
-      
-      const colTd = colTr.append({
-        tagName: 'td',
-        attributes: {
-          style: `padding:${padding}px; ${bgStyle}`
-        },
-        name: 'Drop content here',
-        droppable: true, // Only the inner TD accepts drops
-        selectable: false, // Don't allow selecting the TD
-        hoverable: false,
-        highlightable: false,
-        layerable: false,
-      })[0];
-      
-      // Restore preserved content if available
-      const prev = preserved[i] || [];
-      prev.forEach((comp: any) => colTd.append(comp));
-    }
-
-    component.set('lastColumnConfig', fingerprint);
-    component.unset('rebuilding');
-  }
-
-  private setupColumnSelection(): void {
-    const editor = this.editor;
-    
-    // When a component is added to canvas (dropped from block)
-    editor.on('block:drag:stop', (component: any) => {
-      // Wait for the component to be fully added
-      setTimeout(() => {
-        if (component) {
-          let toSelect = component;
-          if (toSelect.get && toSelect.get('type') !== 'flexible-columns') {
-            // If dropped inside flexible-columns, bubble up
-            let p = toSelect.parent && toSelect.parent();
-            while (p) {
-              if (p.get && p.get('type') === 'flexible-columns') {
-                toSelect = p;
-                break;
-              }
-              p = p.parent && p.parent();
-            }
-          }
-          if (toSelect && toSelect.get && toSelect.get('type') === 'flexible-columns') {
-            editor.select(toSelect);
-            return;
-          }
-        }
-
-        // Fallback: pick the last flexible-columns in the canvas
-        const wrapper = editor.getWrapper();
-        const all = wrapper.find('*');
-        const flexList = all.filter((c: any) => c.get('type') === 'flexible-columns');
-        if (flexList.length) {
-          editor.select(flexList[flexList.length - 1]);
-          return;
-        }
-
-        // Legacy columns fallback: select first column inside a column container
-        all.forEach((comp: any) => {
-          const attrs = comp.getAttributes();
-          const style = attrs.style || '';
-          if (style.includes('font-size:0') || style.includes('font-size: 0')) {
-            const columns = comp.find('div').filter((div: any) => {
-              const divStyle = div.getAttributes().style || '';
-              return divStyle.includes('display:inline-block') || divStyle.includes('display: inline-block');
-            });
-            if (columns.length > 0) {
-              editor.select(columns[0]);
-              columns.forEach((col: any) => {
-                col.set({ name: 'Column', selectable: true, hoverable: true, highlightable: true });
-              });
-            }
-          }
-        });
-      }, 200);
-    });
-    
-    // Prevent auto-selecting text inside columns on first click
-    // Also handle reselection of flexible-columns when clicking child elements
-    editor.on('component:selected', (component: any) => {
-      if (!component) return;
-      
-      const tagName = component.get('tagName');
-      const componentType = component.get('type');
-      
-      // If a table/tr/td inside a column is selected, select the column div instead
-      if (tagName === 'table' || tagName === 'tr' || tagName === 'td') {
-        let parent = component.parent();
-        
-        // Find the email-column-div parent
-        while (parent) {
-          const parentType = parent.get('type');
-          
-          if (parentType === 'email-column-div') {
-            setTimeout(() => {
-              editor.select(parent);
-            }, 10);
-            return;
-          }
-          
-          if (parentType === 'flexible-columns') {
-            // If inside flexible-columns but not in a column-div, select the flexible-columns
-            setTimeout(() => {
-              editor.select(parent);
-            }, 10);
-            return;
-          }
-          
-          parent = parent.parent();
-        }
-      }
-      
-      // Prefill column traits from inner TD styles when selecting a column
-      if (componentType === 'email-column-div') {
-        // Use a timeout to avoid blocking the UI
-        setTimeout(() => {
-          this.prefillEmailColumnTraits(component);
-        }, 50);
-      }
-
-      // If a child element is selected, check if it's inside a flexible-columns component
-      if (componentType !== 'flexible-columns') {
-        let parent = component.parent();
-        
-        // Navigate up to find the flexible-columns parent
-        while (parent) {
-          const parentType = parent.get('type');
-          
-          if (parentType === 'flexible-columns') {
-            // If the selected component is a table/tr/td (structural), select the flexible-columns
-            if (tagName === 'table' || tagName === 'tr' || tagName === 'td') {
-              setTimeout(() => {
-                editor.select(parent);
-              }, 10);
-            }
-            break;
-          }
-          parent = parent.parent();
-        }
-      }
-    });
-    
-    // Listen for component additions to auto-select flexible-columns
-    editor.on('component:add', (component: any) => {
-      const componentType = component.get('type');
-      
-      // If a flexible-columns component is added, select it after a short delay
-      if (componentType === 'flexible-columns') {
-        setTimeout(() => {
-          editor.select(component);
-        }, 100);
-      }
-    });
-
-    // Add custom CSS for better column highlighting
-    editor.on('load', () => {
-      const canvasDoc = editor.Canvas.getDocument();
-      const style = canvasDoc.createElement('style');
-      style.innerHTML = `
-        .email-column {
-          outline: 2px dashed transparent;
-          transition: outline 0.2s;
-        }
-        .email-column:hover {
-          outline-color: #F59E0B !important;
-        }
-        .gjs-selected .email-column {
-          outline-color: #2563EB !important;
-        }
-      `;
-      canvasDoc.head.appendChild(style);
-    });
-  }
-
-  // Apply column trait attributes to inner TD styles
-  private applyEmailColumnAttributes(columnDiv: any): void {
-    // Prevent infinite loops
-    if (columnDiv.get && columnDiv.get('applying-attributes')) return;
-    
-    const attrs = columnDiv.getAttributes?.() || {};
-    const pad = attrs['data-col-padding'];
-    const bg = attrs['data-col-bg'];
-    const valign = attrs['data-col-valign'];
-
-    const innerTable = columnDiv.find('table')[0];
-    const innerTd = innerTable ? innerTable.find('td')[0] : null;
-    if (!innerTd) return;
-
-    // Set flag to prevent recursion
-    if (columnDiv.set) columnDiv.set('applying-attributes', true);
-
-    // Build style string preserving unknown styles
-    const currentStyle = (innerTd.getAttributes?.().style || '') as string;
-    const styleMap: Record<string, string> = {};
-    currentStyle.split(';').forEach((kv) => {
-      const [k, v] = kv.split(':').map(s => s && s.trim());
-      if (k && v) styleMap[k] = v;
-    });
-
-    if (pad !== undefined && pad !== null && pad !== '') {
-      styleMap['padding'] = `${parseInt(pad, 10) || 0}px`;
-    }
-    if (bg !== undefined && bg !== null && bg !== '') {
-      styleMap['background-color'] = bg;
-    }
-    if (valign) {
-      // Vertical-align belongs to the column DIV (inline-block) and MSO TDs; we set on DIV for live preview
-      const divAttrs = columnDiv.getAttributes?.() || {};
-      const divStyle = (divAttrs.style || '') as string;
-      const divMap: Record<string, string> = {};
-      divStyle.split(';').forEach((kv) => {
-        const [k, v] = kv.split(':').map(s => s && s.trim());
-        if (k && v) divMap[k] = v;
-      });
-      divMap['vertical-align'] = valign;
-      const newDivStyle = Object.entries(divMap).map(([k, v]) => `${k}: ${v}`).join('; ');
-      columnDiv.addAttributes({ style: newDivStyle }, { silent: true });
-    }
-
-    const newStyle = Object.entries(styleMap).map(([k, v]) => `${k}: ${v}`).join('; ');
-    innerTd.addAttributes({ style: newStyle }, { silent: true });
-    
-    // Clear flag after a short delay
-    setTimeout(() => {
-      if (columnDiv.unset) columnDiv.unset('applying-attributes');
-    }, 50);
-  }
-
-  // Read inner TD styles to prefill traits on selection
-  private prefillEmailColumnTraits(columnDiv: any): void {
-    const innerTable = columnDiv.find('table')[0];
-    const innerTd = innerTable ? innerTable.find('td')[0] : null;
-    if (!innerTd) return;
-
-    const style = (innerTd.getAttributes?.().style || '') as string;
-    const map: Record<string, string> = {};
-    style.split(';').forEach((kv) => {
-      const [k, v] = kv.split(':').map(s => s && s.trim());
-      if (k && v) map[k] = v;
-    });
-
-    const padding = map['padding'];
-    const bg = map['background-color'];
-
-    const divAttrs = columnDiv.getAttributes?.() || {};
-    const divStyle = (divAttrs.style || '') as string;
-    const dmap: Record<string, string> = {};
-    divStyle.split(';').forEach((kv) => {
-      const [k, v] = kv.split(':').map(s => s && s.trim());
-      if (k && v) dmap[k] = v;
-    });
-    const valign = dmap['vertical-align'] || '';
-
-    const toSet: any = {};
-    if (padding) {
-      const num = parseInt(padding.replace('px','').trim(), 10);
-      if (!isNaN(num)) toSet['data-col-padding'] = String(num);
-    }
-    if (bg) {
-      toSet['data-col-bg'] = bg;
-    }
-    if (valign) {
-      toSet['data-col-valign'] = valign;
-    }
-    if (Object.keys(toSet).length) {
-      // Use silent option to prevent triggering change events
-      columnDiv.addAttributes(toSet, { silent: true });
-    }
-  }
-
-  private isColumnContainer(component: any): boolean {
-    // Check if component contains multiple inline-block divs (columns)
-    const html = component.toHTML?.() || '';
-    const styleAttr = component.getAttributes?.()?.style || '';
-    
-    return (
-      html.includes('display:inline-block') || 
-      html.includes('display: inline-block') ||
-      styleAttr.includes('font-size:0') || // Common pattern for column containers
-      styleAttr.includes('font-size: 0')
-    );
-  }
-
-  private isInsideColumn(component: any): boolean {
-    // Check if component is a text/paragraph inside a column structure
-    let parent = component.parent?.();
-    while (parent) {
-      const parentStyle = parent.getAttributes?.()?.style || '';
-      if (parentStyle.includes('display:inline-block') || 
-          parentStyle.includes('display: inline-block')) {
-        return true;
-      }
-      parent = parent.parent?.();
-    }
-    return false;
-  }
-
-  private findColumnParent(component: any): any {
-    // Find the column div parent
-    let parent = component.parent?.();
-    while (parent) {
-      const parentStyle = parent.getAttributes?.()?.style || '';
-      const parentTag = parent.get?.('tagName') || '';
-      
-      if (parentTag.toLowerCase() === 'div' && 
-          (parentStyle.includes('display:inline-block') || 
-           parentStyle.includes('display: inline-block'))) {
-        return parent;
-      }
-      parent = parent.parent?.();
-    }
-    return null;
+    return colorMap[tagName] || '#6B7280';
   }
 
   private setupEventListeners(): void {
@@ -1232,15 +822,15 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected setDeviceDesktop(): void {
-    this.editor.runCommand('set-device-desktop');
+    this.editor.setDevice('desktop');
   }
 
   protected setDeviceTablet(): void {
-    this.editor.runCommand('set-device-tablet');
+    this.editor.setDevice('tablet');
   }
 
   protected setDeviceMobile(): void {
-    this.editor.runCommand('set-device-mobile');
+    this.editor.setDevice('mobilePortrait');
   }
 
   protected save(): void {
@@ -1265,6 +855,18 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected fullscreen(): void {
     this.editor.runCommand('fullscreen');
+  }
+
+  protected viewMJML(): void {
+    this.editor.runCommand('view-mjml');
+  }
+
+  protected viewHTML(): void {
+    this.editor.runCommand('view-html');
+  }
+
+  protected viewComponents(): void {
+    this.editor.runCommand('view-components');
   }
 
   protected onSearchInput(event: Event): void {
@@ -1339,8 +941,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const templateData = {
       name: name.trim(),
       description: description.trim(),
-      html: this.editor.getHtml(),
-      css: this.editor.getCss(),
+      mjml: this.editor.getHtml(), // Store MJML code
       components: JSON.parse(JSON.stringify(this.editor.getComponents())),
       styles: JSON.parse(JSON.stringify(this.editor.getStyle())),
       status: 'draft'
@@ -1372,8 +973,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isSaving.set(true);
     
     const updateData = {
-      html: this.editor.getHtml(),
-      css: this.editor.getCss(),
+      mjml: this.editor.getHtml(), // Store MJML code
       components: JSON.parse(JSON.stringify(this.editor.getComponents())),
       styles: JSON.parse(JSON.stringify(this.editor.getStyle()))
     };

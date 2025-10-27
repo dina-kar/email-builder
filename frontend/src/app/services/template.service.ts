@@ -8,8 +8,9 @@ export interface Template {
   id: string;
   name: string;
   description?: string;
-  html: string;
-  css: string;
+  mjml?: string; // MJML source code
+  html?: string;
+  css?: string;
   components?: any;
   styles?: any;
   assets?: string[];
@@ -23,8 +24,9 @@ export interface Template {
 export interface CreateTemplateDto {
   name: string;
   description?: string;
-  html: string;
-  css: string;
+  mjml?: string; // MJML source code
+  html?: string;
+  css?: string;
   components?: any;
   styles?: any;
   assets?: string[];
@@ -36,6 +38,7 @@ export interface CreateTemplateDto {
 export interface UpdateTemplateDto {
   name?: string;
   description?: string;
+  mjml?: string; // MJML source code
   html?: string;
   css?: string;
   components?: any;

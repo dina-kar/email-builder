@@ -336,7 +336,7 @@
 }
 
 ::ng-deep .gjs-block {
-  background-color: var(--theme-bg-white);
+  background-color: var(--theme-bg-white) !important;
   border: 2px solid var(--theme-border-gray);
   border-radius: var(--radius-lg);
   padding: var(--spacing-1);
@@ -1029,17 +1029,36 @@
 /* ============================================
    ADDITIONAL GRAPES JS OVERRIDES
    ============================================ */
+
+/* Hide MJML plugin's default top panels */
+::ng-deep .gjs-pn-panels {
+  display: none !important;
+}
+
+/* Hide any panels that try to show at the top */
+::ng-deep .gjs-pn-views-container,
+::ng-deep .gjs-pn-devices-c,
+::ng-deep .gjs-pn-options,
+::ng-deep .gjs-pn-commands {
+  display: none !important;
+}
+
+/* Keep only our custom panels visible */
+::ng-deep #gjs .gjs-pn-panel {
+  display: none !important;
+}
+
 ::ng-deep .gjs-one-bg {
-  background-color: var(--theme-bg-white);
+  background-color: var(--theme-bg-white) !important;
 }
 
 ::ng-deep .gjs-two-color {
-  color: var(--theme-text-body);
+  color: var(--theme-text-body) !important;
 }
 
 ::ng-deep .gjs-three-bg {
-  background-color: var(--theme-amber-primary);
-  color: white;
+  background-color: var(--theme-amber-primary) !important;
+  color: white !important;
 }
 
 ::ng-deep .gjs-four-color,
