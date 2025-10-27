@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS templates (
   name VARCHAR(255) NOT NULL,
   description TEXT,
   mjml TEXT,
+  html TEXT,
+  css TEXT,
   components JSONB,
   styles JSONB,
   assets JSONB,

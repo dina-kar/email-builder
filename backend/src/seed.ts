@@ -10,17 +10,23 @@ async function seed() {
     {
       name: 'Welcome Email',
       description: 'A simple welcome email template',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #333;">Welcome!</h1>
-          <p>Thank you for joining us. We're excited to have you here.</p>
-          <a href="#" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Get Started</a>
-        </div>
-      `,
-      css: `
-        body { margin: 0; padding: 20px; background-color: #f4f4f4; }
-        .container { background-color: white; padding: 20px; border-radius: 8px; }
-      `,
+      mjml: `<mjml>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#ffffff" padding="20px">
+      <mj-column>
+        <mj-text font-size="28px" color="#333333" font-weight="bold" padding-bottom="10px">
+          Welcome!
+        </mj-text>
+        <mj-text font-size="16px" color="#555555" line-height="1.6" padding-bottom="20px">
+          Thank you for joining us. We're excited to have you here.
+        </mj-text>
+        <mj-button background-color="#007bff" color="#ffffff" href="#" font-weight="bold">
+          Get Started
+        </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`,
       components: {},
       styles: {},
       assets: [],
@@ -30,31 +36,41 @@ async function seed() {
     {
       name: 'Newsletter Template',
       description: 'Monthly newsletter layout',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <header style="background-color: #007bff; color: white; padding: 20px; text-align: center;">
-            <h1>Monthly Newsletter</h1>
-          </header>
-          <section style="padding: 20px;">
-            <h2>What's New</h2>
-            <p>Check out our latest updates and features.</p>
-            <ul>
-              <li>New feature announcement</li>
-              <li>Customer success stories</li>
-              <li>Upcoming events</li>
-            </ul>
-          </section>
-          <footer style="background-color: #f8f9fa; padding: 20px; text-align: center;">
-            <p>&copy; 2025 Your Company. All rights reserved.</p>
-          </footer>
-        </div>
-      `,
-      css: `
-        body { margin: 0; padding: 20px; background-color: #f4f4f4; }
-        header { margin-bottom: 20px; }
-        section { margin-bottom: 20px; }
-        footer { border-top: 1px solid #dee2e6; }
-      `,
+      mjml: `<mjml>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#007bff" padding="20px">
+      <mj-column>
+        <mj-text font-size="32px" color="#ffffff" font-weight="bold" align="center">
+          Monthly Newsletter
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    
+    <mj-section background-color="#ffffff" padding="20px">
+      <mj-column>
+        <mj-text font-size="24px" color="#333333" font-weight="bold" padding-bottom="10px">
+          What's New
+        </mj-text>
+        <mj-text font-size="16px" color="#555555" line-height="1.6" padding-bottom="15px">
+          Check out our latest updates and features.
+        </mj-text>
+        <mj-text font-size="16px" color="#555555" line-height="1.8">
+          • New feature announcement<br/>
+          • Customer success stories<br/>
+          • Upcoming events
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    
+    <mj-section background-color="#f8f9fa" padding="20px">
+      <mj-column>
+        <mj-text font-size="14px" color="#666666" align="center">
+          © 2025 Your Company. All rights reserved.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`,
       components: {},
       styles: {},
       assets: [],

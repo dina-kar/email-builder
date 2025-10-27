@@ -1063,11 +1063,11 @@
 
 ::ng-deep .gjs-four-color,
 ::ng-deep .gjs-four-color-h:hover {
-  color: var(--theme-amber-primary);
+  color: var(--theme-amber-primary) !important;
 }
 
 ::ng-deep .gjs-am-assets {
-  background-color: var(--theme-bg-white);
+  background-color: var(--theme-bg-white) !important;
 }
 
 ::ng-deep .gjs-am-asset {
