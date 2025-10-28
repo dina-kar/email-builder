@@ -119,8 +119,8 @@
   --radius-lg: 8px;
   
   /* Layout Dimensions */
-  --sidebar-left-width: 320px;
-  --sidebar-right-width: 320px;
+  --sidebar-left-width: 400px;
+  --sidebar-right-width: 400px;
   --toolbar-height: 56px;
   
   /* Transitions */
@@ -645,22 +645,109 @@
   left: auto !important;
 }
 /* Number inputs with increment/decrement */
+::ng-deep .gjs-field-integer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  max-width: 120px;
+}
+
+::ng-deep .gjs-field-integer input {
+  padding-right: 48px !important;
+  flex: 1;
+  width: 100% !important;
+  max-width: 100%;
+}
+
 ::ng-deep .gjs-field-integer .gjs-field-arrows {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  flex-direction: row;
+  gap: 2px;
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  height: 100%;
+  align-items: center;
 }
 
 ::ng-deep .gjs-field-arrow-u,
 ::ng-deep .gjs-field-arrow-d {
-  color: var(--theme-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  color: var(--theme-text-body);
+  background-color: var(--theme-bg-gray-100);
+  border: 1px solid var(--theme-border-gray);
+  border-radius: 3px;
   cursor: pointer;
-  transition: color var(--transition-base);
+  transition: all var(--transition-base);
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  flex-shrink: 0;
+  user-select: none;
+  outline: none;
+}
+
+::ng-deep .gjs-field-arrow-u{
+  top: 9px;
+  left: 18px;
+}
+::ng-deep .gjs-field-arrow-d{
+  top: 27px;
+  left: 18px;
+}
+
+::ng-deep .gjs-field-arrow-u::before {
+  content: '▲';
+  font-size: 7px;
+}
+
+::ng-deep .gjs-field-arrow-d::before {
+  content: '▼';
+  font-size: 7px;
 }
 
 ::ng-deep .gjs-field-arrow-u:hover,
 ::ng-deep .gjs-field-arrow-d:hover {
-  color: var(--theme-amber-primary);
+  color: white;
+  background-color: var(--theme-amber-primary);
+  border-color: var(--theme-amber-dark);
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+::ng-deep .gjs-field-arrow-u:active,
+::ng-deep .gjs-field-arrow-d:active {
+  background-color: var(--theme-amber-dark);
+  transform: scale(0.9);
+}
+
+/* Pixel-specific field styling */
+::ng-deep .gjs-field[data-type="px"],
+::ng-deep .gjs-field[data-type="integer"] {
+  position: relative;
+}
+
+/* Add unit indicator styling */
+::ng-deep .gjs-field-unit {
+  position: absolute;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--theme-text-muted);
+  pointer-events: none;
+  background-color: var(--theme-bg-gray-50);
+  padding: 0 4px;
 }
 
 /* ============================================
@@ -1223,17 +1310,22 @@
   outline-offset: -2px;
 }
 
+/* Default background color for columns */
+::ng-deep [data-gjs-type="mj-column"] {
+  background-color: #ffffff !important;
+}
+
 /* Make columns more visible when hovered/selected */
 ::ng-deep [data-gjs-type="mj-column"].gjs-hovered {
   outline: 2px dashed rgba(6, 182, 212, 0.5) !important;
   outline-offset: -2px;
-  background-color: rgba(6, 182, 212, 0.03) !important;
+  background-color: rgba(6, 182, 212, 0.1) !important;
 }
 
 ::ng-deep [data-gjs-type="mj-column"].gjs-selected {
   outline: 2px solid rgba(6, 182, 212, 0.8) !important;
   outline-offset: -2px;
-  background-color: rgba(6, 182, 212, 0.05) !important;
+  background-color: rgba(6, 182, 212, 0.15) !important;
 }
 
 /* Add visual guides for empty sections */
