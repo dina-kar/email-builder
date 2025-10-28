@@ -29,12 +29,16 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private editor: any;
   private autoSaveInterval: any;
   private templateId: string | null = null;
+  private contentChanged = signal(false);
   
   protected searchTerm = signal('');
   protected templateName = signal('Untitled Template');
+  protected emailTitle = signal('');
+  protected emailPreview = signal('');
   protected isSaving = signal(false);
   protected lastSaved = signal<Date | null>(null);
   protected showSaveDialog = signal(false);
+  protected saveMessage = signal<{text: string, type: 'success' | 'error'} | null>(null);
 
   ngOnInit(): void {
     // Get template ID from route params if editing
@@ -52,12 +56,12 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loadTemplate(this.templateId);
     }
     
-    // Setup auto-save every 30 seconds
+    // Setup auto-save every 10 seconds
     this.autoSaveInterval = setInterval(() => {
-      if (this.templateId && !this.isSaving()) {
+      if (this.templateId && !this.isSaving() && this.contentChanged()) {
         this.autoSaveTemplate();
       }
-    }, 30000);
+    }, 10000);
   }
 
   ngOnDestroy(): void {
@@ -76,7 +80,12 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         
         // Load MJML content into editor
         if (template.mjml) {
-          this.editor.setComponents(template.mjml);
+          // Extract title and preview from MJML
+          this.extractEmailMetadata(template.mjml);
+          
+          // Remove <mj-head> section before loading into editor
+          const mjmlWithoutHead = this.removeHeadSection(template.mjml);
+          this.editor.setComponents(mjmlWithoutHead);
         } else if (template.components) {
           // Fallback to components if MJML not available
           this.editor.setComponents(template.components);
@@ -87,10 +96,11 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         
         this.lastSaved.set(new Date(template.updatedAt));
+        this.contentChanged.set(false);
       },
       error: (err) => {
         console.error('Error loading template:', err);
-        alert(`Failed to load template: ${err.message}`);
+        this.showMessage(`Failed to load template: ${err.message}`, 'error');
         this.router.navigate(['/']);
       }
     });
@@ -99,8 +109,10 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private autoSaveTemplate(): void {
     if (!this.templateId) return;
     
+    this.isSaving.set(true);
+    
     const updateData = {
-      mjml: this.editor.getHtml(), // Store MJML code
+      mjml: this.injectEmailMetadata(this.editor.getHtml()), // Store MJML code with metadata
       components: JSON.parse(JSON.stringify(this.editor.getComponents())),
       styles: JSON.parse(JSON.stringify(this.editor.getStyle()))
     };
@@ -108,9 +120,13 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.templateService.updateTemplate(this.templateId, updateData).subscribe({
       next: () => {
         this.lastSaved.set(new Date());
+        this.contentChanged.set(false);
+        this.isSaving.set(false);
       },
       error: (err) => {
         console.error('Auto-save failed:', err);
+        this.isSaving.set(false);
+        this.showMessage('Auto-save failed', 'error');
       }
     });
   }
@@ -476,11 +492,11 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editor.Commands.add('import-template', {
       run: (editor: any) => {
         const modal = editor.Modal;
-        modal.setTitle('Import Email Template');
+        modal.setTitle('Import MJML Template');
         modal.setContent(`
           <div style="padding: 20px;">
-            <p style="margin-bottom: 10px; color: #374151;">Paste your MJML or HTML template code here:</p>
-            <textarea id="import-html" style="width: 100%; height: 300px; padding: 10px; border: 1px solid #E5E7EB; border-radius: 4px; font-family: monospace; resize: vertical;" placeholder="Paste your MJML or HTML template here..."></textarea>
+            <p style="margin-bottom: 10px; color: #374151;">Paste your MJML template code here:</p>
+            <textarea id="import-html" style="width: 100%; height: 300px; padding: 10px; border: 1px solid #E5E7EB; border-radius: 4px; font-family: monospace; resize: vertical;" placeholder="Paste your MJML template here..."></textarea>
             <div style="margin-top: 20px; text-align: right;">
               <button id="cancel-import-btn" style="padding: 8px 16px; background-color: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Cancel</button>
               <button id="import-btn" style="padding: 8px 16px; background-color: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer;">Import Template</button>
@@ -498,30 +514,39 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           document.getElementById('import-btn')?.addEventListener('click', () => {
             const code = (document.getElementById('import-html') as HTMLTextAreaElement)?.value;
             if (code && code.trim()) {
-              // Check if it's MJML or HTML
+              // Check if it's valid MJML
               const isMJML = code.trim().toLowerCase().includes('<mjml') || 
                             code.trim().toLowerCase().includes('<mj-');
               
-              if (isMJML) {
-                // Import MJML directly
-                editor.setComponents(code);
-              } else {
-                // Try to wrap HTML in MJML structure
-                const wrappedMJML = `<mjml>
-  <mj-body>
-    <mj-section>
-      <mj-column>
-        <mj-text>${code}</mj-text>
-      </mj-column>
-    </mj-section>
-  </mj-body>
-</mjml>`;
-                editor.setComponents(wrappedMJML);
+              if (!isMJML) {
+                this.showMessage('Only MJML code is supported. Please paste valid MJML.', 'error');
+                return;
               }
+              
+              // Import MJML - ensure body has gray background
+              let mjmlCode = code;
+              // Check if mj-body exists and add/update background-color
+              if (mjmlCode.includes('<mj-body')) {
+                // If mj-body already has background-color, replace it
+                if (/background-color\s*=\s*["'][^"']*["']/.test(mjmlCode)) {
+                  mjmlCode = mjmlCode.replace(/(<mj-body[^>]*background-color\s*=\s*["'])[^"']*/, '$1#f4f4f4');
+                } else {
+                  // Add background-color if it doesn't exist
+                  mjmlCode = mjmlCode.replace(/<mj-body/, '<mj-body background-color="#f4f4f4"');
+                }
+              }
+              
+              // Extract title and preview from imported MJML
+              this.extractEmailMetadata(mjmlCode);
+              
+              // Remove <mj-head> section from the MJML before setting components
+              mjmlCode = this.removeHeadSection(mjmlCode);
+              
+              editor.setComponents(mjmlCode);
               modal.close();
-              alert('✅ Template imported successfully!');
+              this.showMessage('Template imported successfully!', 'success');
             } else {
-              alert('⚠️ Please paste some code first.');
+              this.showMessage('Please paste some code first.', 'error');
             }
           });
         }, 100);
@@ -641,10 +666,10 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           link.click();
           URL.revokeObjectURL(url);
 
-          alert('✅ Email template exported successfully!');
+          this.showMessage('Email template exported successfully!', 'success');
         } catch (error) {
           console.error('Error exporting template:', error);
-          alert('⚠️ Error exporting template. Please try again.');
+          this.showMessage('Error exporting template. Please try again.', 'error');
         }
       },
     });
@@ -677,7 +702,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             const textarea = document.getElementById('mjml-code-view') as HTMLTextAreaElement;
             textarea.select();
             document.execCommand('copy');
-            alert('✅ MJML code copied to clipboard!');
+            this.showMessage('MJML code copied to clipboard!', 'success');
           });
 
           document.getElementById('close-mjml-btn')?.addEventListener('click', () => {
@@ -732,144 +757,29 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           modal.open();
 
           setTimeout(() => {
-            document.getElementById('copy-html-btn')?.addEventListener('click', () => {
-              const textarea = document.getElementById('html-code-view') as HTMLTextAreaElement;
-              textarea.select();
-              document.execCommand('copy');
-              alert('✅ HTML code copied to clipboard!');
-            });
-
-            document.getElementById('close-html-btn')?.addEventListener('click', () => {
+          document.getElementById('copy-html-btn')?.addEventListener('click', () => {
+            const textarea = document.getElementById('html-code-view') as HTMLTextAreaElement;
+            textarea.select();
+            document.execCommand('copy');
+            this.showMessage('HTML code copied to clipboard!', 'success');
+          });            document.getElementById('close-html-btn')?.addEventListener('click', () => {
               modal.close();
             });
           }, 100);
-        } catch (error) {
+          } catch (error) {
           console.error('Error getting HTML:', error);
-          alert('⚠️ Error compiling MJML to HTML. Please check your MJML structure.');
+          this.showMessage('Error compiling MJML to HTML. Please check your MJML structure.', 'error');
         }
       },
     });
-
-    // View Components (Visual Tree) command
-    this.editor.Commands.add('view-components', {
-      run: (editor: any) => {
-        const modal = editor.Modal;
-        
-        // Parse MJML structure to create a visual tree
-        const mjmlCode = editor.getHtml();
-        const visualTree = this.generateVisualTree(mjmlCode);
-        
-        modal.setTitle('Email Structure');
-        modal.setContent(`
-          <div style="padding: 20px;">
-            <p style="margin-bottom: 10px; color: #374151;">Your email template structure:</p>
-            <div id="components-view" style="width: 100%; height: 400px; padding: 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px; overflow: auto; background: #F9FAFB; line-height: 1.6;">${visualTree}</div>
-            <div style="margin-top: 16px; display: flex; justify-content: flex-end; align-items: center;">
-              <button id="close-components-btn" style="padding: 8px 16px; background-color: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-                Close
-              </button>
-            </div>
-          </div>
-        `);
-        modal.open();
-
-        setTimeout(() => {
-          document.getElementById('close-components-btn')?.addEventListener('click', () => {
-            modal.close();
-          });
-        }, 100);
-      },
-    });
-  }
-
-  private generateVisualTree(mjmlCode: string): string {
-    // Parse MJML and create a visual tree representation with dotted lines
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(mjmlCode, 'text/html');
-    
-    let tree = '';
-    let indent = 0;
-    
-    const buildTree = (node: Element, level: number) => {
-      const tagName = node.tagName.toLowerCase();
-      
-      // Skip text nodes and non-mjml tags
-      if (!tagName.startsWith('mj-')) return;
-      
-      const indentStr = '│   '.repeat(level);
-      const connector = level > 0 ? '├── ' : '';
-      
-      // Get relevant attributes
-      const attrs: string[] = [];
-      if (node.hasAttribute('background-color')) {
-        attrs.push(`bg: ${node.getAttribute('background-color')}`);
-      }
-      if (node.hasAttribute('color')) {
-        attrs.push(`color: ${node.getAttribute('color')}`);
-      }
-      if (node.hasAttribute('font-size')) {
-        attrs.push(`size: ${node.getAttribute('font-size')}`);
-      }
-      if (node.hasAttribute('padding')) {
-        attrs.push(`padding: ${node.getAttribute('padding')}`);
-      }
-      if (node.hasAttribute('width')) {
-        attrs.push(`width: ${node.getAttribute('width')}`);
-      }
-      
-      const attrStr = attrs.length > 0 ? ` <span style="color: #6B7280;">[${attrs.join(', ')}]</span>` : '';
-      
-      // Get text content for text elements
-      let textContent = '';
-      if (tagName === 'mj-text' || tagName === 'mj-button') {
-        const text = node.textContent?.trim().substring(0, 50);
-        if (text) {
-          textContent = ` <span style="color: #10B981;">"${text}${text.length >= 50 ? '...' : ''}"</span>`;
-        }
-      }
-      
-      const tagColor = this.getTagColor(tagName);
-      tree += `${indentStr}${connector}<span style="color: ${tagColor}; font-weight: 600;">&lt;${tagName}&gt;</span>${attrStr}${textContent}\n`;
-      
-      // Process children
-      const children = Array.from(node.children);
-      children.forEach((child, index) => {
-        buildTree(child as Element, level + 1);
-      });
-    };
-    
-    // Find the root mjml element
-    const mjmlRoot = doc.querySelector('mjml') || doc.documentElement;
-    if (mjmlRoot) {
-      buildTree(mjmlRoot as Element, 0);
-    }
-    
-    return tree || '<span style="color: #6B7280;">No MJML structure found</span>';
-  }
-  
-  private getTagColor(tagName: string): string {
-    const colorMap: { [key: string]: string } = {
-      'mjml': '#F59E0B',
-      'mj-body': '#EC4899',
-      'mj-head': '#8B5CF6',
-      'mj-section': '#3B82F6',
-      'mj-column': '#06B6D4',
-      'mj-group': '#14B8A6',
-      'mj-text': '#10B981',
-      'mj-button': '#84CC16',
-      'mj-image': '#EAB308',
-      'mj-divider': '#6366F1',
-      'mj-spacer': '#A855F7',
-      'mj-social': '#EC4899',
-      'mj-navbar': '#F59E0B',
-      'mj-hero': '#EF4444',
-      'mj-wrapper': '#8B5CF6',
-    };
-    
-    return colorMap[tagName] || '#6B7280';
   }
 
   private setupEventListeners(): void {
+    // Track content changes
+    this.editor.on('component:add component:remove component:update change:changesCount', () => {
+      this.contentChanged.set(true);
+    });
+
     // Tab switching
     document.querySelectorAll('.sidebar-tab').forEach(tab => {
       tab.addEventListener('click', () => {
@@ -971,10 +881,6 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editor.runCommand('view-html');
   }
 
-  protected viewComponents(): void {
-    this.editor.runCommand('view-components');
-  }
-
   protected onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const searchTerm = input.value.toLowerCase();
@@ -1038,7 +944,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected saveNewTemplate(name: string, description: string = ''): void {
     if (!name.trim()) {
-      alert('Please enter a template name');
+      this.showMessage('Please enter a template name', 'error');
       return;
     }
 
@@ -1049,7 +955,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       const templateData = {
         name: name.trim(),
         description: description.trim(),
-        mjml: this.editor.getHtml(), // Store MJML code
+        mjml: this.injectEmailMetadata(this.editor.getHtml()), // Store MJML code with metadata
         components: JSON.parse(JSON.stringify(this.editor.getComponents())),
         styles: JSON.parse(JSON.stringify(this.editor.getStyle())),
         thumbnail: thumbnailDataUrl, // Store base64 thumbnail
@@ -1061,17 +967,18 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           this.templateId = template.id;
           this.templateName.set(template.name);
           this.lastSaved.set(new Date());
+          this.contentChanged.set(false);
           this.isSaving.set(false);
           this.showSaveDialog.set(false);
           
           // Update URL without reloading
           this.router.navigate(['/editor', template.id], { replaceUrl: true });
           
-          alert('✅ Template saved successfully!');
+          this.showMessage('Template saved successfully!', 'success');
         },
         error: (err) => {
           this.isSaving.set(false);
-          alert(`Failed to save template: ${err.message}`);
+          this.showMessage(`Failed to save template: ${err.message}`, 'error');
         }
       });
     }).catch((err) => {
@@ -1080,7 +987,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       const templateData = {
         name: name.trim(),
         description: description.trim(),
-        mjml: this.editor.getHtml(),
+        mjml: this.injectEmailMetadata(this.editor.getHtml()),
         components: JSON.parse(JSON.stringify(this.editor.getComponents())),
         styles: JSON.parse(JSON.stringify(this.editor.getStyle())),
         status: 'draft'
@@ -1091,14 +998,15 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           this.templateId = template.id;
           this.templateName.set(template.name);
           this.lastSaved.set(new Date());
+          this.contentChanged.set(false);
           this.isSaving.set(false);
           this.showSaveDialog.set(false);
           this.router.navigate(['/editor', template.id], { replaceUrl: true });
-          alert('✅ Template saved successfully!');
+          this.showMessage('Template saved successfully!', 'success');
         },
         error: (err) => {
           this.isSaving.set(false);
-          alert(`Failed to save template: ${err.message}`);
+          this.showMessage(`Failed to save template: ${err.message}`, 'error');
         }
       });
     });
@@ -1112,7 +1020,7 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     // Generate updated thumbnail
     this.generateThumbnail().then((thumbnailDataUrl) => {
       const updateData = {
-        mjml: this.editor.getHtml(), // Store MJML code
+        mjml: this.injectEmailMetadata(this.editor.getHtml()), // Store MJML code with metadata
         components: JSON.parse(JSON.stringify(this.editor.getComponents())),
         styles: JSON.parse(JSON.stringify(this.editor.getStyle())),
         thumbnail: thumbnailDataUrl // Update thumbnail
@@ -1121,19 +1029,20 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.templateService.updateTemplate(this.templateId!, updateData).subscribe({
         next: () => {
           this.lastSaved.set(new Date());
+          this.contentChanged.set(false);
           this.isSaving.set(false);
-          alert('✅ Template updated successfully!');
+          this.showMessage('Template saved successfully!', 'success');
         },
         error: (err) => {
           this.isSaving.set(false);
-          alert(`Failed to update template: ${err.message}`);
+          this.showMessage(`Failed to update template: ${err.message}`, 'error');
         }
       });
     }).catch((err) => {
       console.error('Failed to generate thumbnail:', err);
       // Update without thumbnail if generation fails
       const updateData = {
-        mjml: this.editor.getHtml(),
+        mjml: this.injectEmailMetadata(this.editor.getHtml()),
         components: JSON.parse(JSON.stringify(this.editor.getComponents())),
         styles: JSON.parse(JSON.stringify(this.editor.getStyle()))
       };
@@ -1141,12 +1050,13 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.templateService.updateTemplate(this.templateId!, updateData).subscribe({
         next: () => {
           this.lastSaved.set(new Date());
+          this.contentChanged.set(false);
           this.isSaving.set(false);
-          alert('✅ Template updated successfully!');
+          this.showMessage('Template saved successfully!', 'success');
         },
         error: (err) => {
           this.isSaving.set(false);
-          alert(`Failed to update template: ${err.message}`);
+          this.showMessage(`Failed to update template: ${err.message}`, 'error');
         }
       });
     });
@@ -1168,17 +1078,160 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     
     const now = new Date();
     const diffMs = now.getTime() - lastSavedDate.getTime();
+    const diffSecs = Math.floor(diffMs / 1000);
     const diffMins = Math.floor(diffMs / 60000);
     
-    if (diffMins < 1) return 'Just now';
-    if (diffMins === 1) return '1 minute ago';
-    if (diffMins < 60) return `${diffMins} minutes ago`;
+    if (diffSecs < 10) return 'Saved just now';
+    if (diffSecs < 60) return `Saved ${diffSecs} seconds ago`;
+    if (diffMins === 1) return 'Saved 1 minute ago';
+    if (diffMins < 60) return `Saved ${diffMins} minutes ago`;
     
     const diffHours = Math.floor(diffMins / 60);
-    if (diffHours === 1) return '1 hour ago';
-    if (diffHours < 24) return `${diffHours} hours ago`;
+    if (diffHours === 1) return 'Saved 1 hour ago';
+    if (diffHours < 24) return `Saved ${diffHours} hours ago`;
     
-    return lastSavedDate.toLocaleString();
+    // For older saves, show the actual time
+    return 'Saved at ' + lastSavedDate.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  /**
+   * Show a toast message
+   */
+  private showMessage(text: string, type: 'success' | 'error'): void {
+    this.saveMessage.set({ text, type });
+    setTimeout(() => {
+      this.saveMessage.set(null);
+    }, 3000);
+  }
+
+  /**
+   * Extract email title and preview text from MJML code
+   */
+  private extractEmailMetadata(mjmlCode: string): void {
+    // Extract title from <mj-title>
+    const titleMatch = mjmlCode.match(/<mj-title[^>]*>(.*?)<\/mj-title>/is);
+    if (titleMatch && titleMatch[1]) {
+      this.emailTitle.set(titleMatch[1].trim());
+    } else {
+      this.emailTitle.set('');
+    }
+
+    // Extract preview from <mj-preview>
+    const previewMatch = mjmlCode.match(/<mj-preview[^>]*>(.*?)<\/mj-preview>/is);
+    if (previewMatch && previewMatch[1]) {
+      this.emailPreview.set(previewMatch[1].trim());
+    } else {
+      this.emailPreview.set('');
+    }
+  }
+
+  /**
+   * Inject email title and preview text into MJML code
+   */
+  private injectEmailMetadata(mjmlCode: string): string {
+    let updatedMjml = mjmlCode;
+
+    // Check if <mj-head> exists
+    const hasHead = updatedMjml.includes('<mj-head>');
+    
+    if (!hasHead) {
+      // Create <mj-head> section after <mjml> opening tag
+      const headContent = this.buildHeadContent();
+      updatedMjml = updatedMjml.replace(
+        /<mjml([^>]*)>/i,
+        `<mjml$1>\n  <mj-head>\n${headContent}  </mj-head>\n`
+      );
+    } else {
+      // Update existing <mj-head>
+      const titleValue = this.emailTitle();
+      const previewValue = this.emailPreview();
+
+      // Handle <mj-title>
+      if (updatedMjml.includes('<mj-title>')) {
+        if (titleValue) {
+          updatedMjml = updatedMjml.replace(
+            /<mj-title[^>]*>.*?<\/mj-title>/is,
+            `<mj-title>${titleValue}</mj-title>`
+          );
+        } else {
+          // Remove empty title
+          updatedMjml = updatedMjml.replace(/<mj-title[^>]*>.*?<\/mj-title>\s*/is, '');
+        }
+      } else if (titleValue) {
+        // Add title to head
+        updatedMjml = updatedMjml.replace(
+          /<mj-head>/i,
+          `<mj-head>\n    <mj-title>${titleValue}</mj-title>`
+        );
+      }
+
+      // Handle <mj-preview>
+      if (updatedMjml.includes('<mj-preview>')) {
+        if (previewValue) {
+          updatedMjml = updatedMjml.replace(
+            /<mj-preview[^>]*>.*?<\/mj-preview>/is,
+            `<mj-preview>${previewValue}</mj-preview>`
+          );
+        } else {
+          // Remove empty preview
+          updatedMjml = updatedMjml.replace(/<mj-preview[^>]*>.*?<\/mj-preview>\s*/is, '');
+        }
+      } else if (previewValue) {
+        // Add preview to head
+        updatedMjml = updatedMjml.replace(
+          /<mj-head>/i,
+          `<mj-head>\n    <mj-preview>${previewValue}</mj-preview>`
+        );
+      }
+    }
+
+    return updatedMjml;
+  }
+
+  /**
+   * Remove <mj-head> section from MJML code
+   */
+  private removeHeadSection(mjmlCode: string): string {
+    // Remove the entire <mj-head>...</mj-head> section
+    return mjmlCode.replace(/<mj-head[^>]*>[\s\S]*?<\/mj-head>\s*/gi, '');
+  }
+
+  /**
+   * Build the head content with title and preview
+   */
+  private buildHeadContent(): string {
+    const titleValue = this.emailTitle();
+    const previewValue = this.emailPreview();
+    let content = '';
+
+    if (titleValue) {
+      content += `    <mj-title>${titleValue}</mj-title>\n`;
+    }
+    if (previewValue) {
+      content += `    <mj-preview>${previewValue}</mj-preview>\n`;
+    }
+
+    return content;
+  }
+
+  /**
+   * Update email metadata when user edits the fields
+   */
+  protected onEmailTitleChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.emailTitle.set(input.value);
+    this.contentChanged.set(true);
+  }
+
+  protected onEmailPreviewChange(event: Event): void {
+    const input = event.target as HTMLTextAreaElement;
+    this.emailPreview.set(input.value);
+    this.contentChanged.set(true);
   }
 
   /**

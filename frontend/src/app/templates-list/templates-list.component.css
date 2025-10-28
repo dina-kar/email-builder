@@ -182,7 +182,7 @@
 .template-thumbnail {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 280px;
   background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
   display: flex;
   align-items: center;
