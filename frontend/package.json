@@ -30,6 +30,7 @@
     "@angular/router": "^20.3.0",
     "grapesjs": "^0.21.13",
     "grapesjs-mjml": "^1.0.7",
+    "html2canvas": "^1.4.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

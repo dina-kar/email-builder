@@ -35,7 +35,7 @@ export class Template {
   @Column({ type: 'jsonb', nullable: true })
   assets: string[];
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'text', nullable: true })
   thumbnail: string;
 
   @Column({ type: 'varchar', length: 50, default: 'draft' })

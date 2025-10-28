@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS templates (
   components JSONB,
   styles JSONB,
   assets JSONB,
-  thumbnail VARCHAR(255),
+  thumbnail TEXT,
   status VARCHAR(50) DEFAULT 'draft',
   metadata JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

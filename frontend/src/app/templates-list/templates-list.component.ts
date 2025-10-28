@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { TemplateService, Template } from '../services/template.service';
 
 @Component({
@@ -13,6 +14,7 @@ import { TemplateService, Template } from '../services/template.service';
 export class TemplatesListComponent implements OnInit {
   private readonly templateService = inject(TemplateService);
   private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
 
   templates = signal<Template[]>([]);
   loading = signal<boolean>(false);
@@ -28,6 +30,9 @@ export class TemplatesListComponent implements OnInit {
 
     this.templateService.getTemplates().subscribe({
       next: (templates) => {
+        console.log('Templates loaded:', templates);
+        console.log('Templates with thumbnails:', templates.filter(t => t.thumbnail).length);
+        console.log('Templates without thumbnails:', templates.filter(t => !t.thumbnail).length);
         this.templates.set(templates);
         this.loading.set(false);
       },
@@ -109,5 +114,16 @@ export class TemplatesListComponent implements OnInit {
       default:
         return 'status-draft';
     }
+  }
+
+  onThumbnailError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    // Hide broken image and show placeholder instead
+    img.style.display = 'none';
+  }
+
+  getSafeThumbnail(thumbnail: string | undefined): SafeUrl | null {
+    if (!thumbnail) return null;
+    return this.sanitizer.bypassSecurityTrustUrl(thumbnail);
   }
 }

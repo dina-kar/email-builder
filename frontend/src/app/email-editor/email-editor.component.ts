@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import grapesjs from 'grapesjs';
 import grapesjsMJML from 'grapesjs-mjml';
+import html2canvas from 'html2canvas';
 import { TemplateService, Template } from '../services/template.service';
 import { environment } from '../../environments/environment';
 
@@ -225,12 +226,65 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!this.templateId) {
         const hasContent = this.editor.getComponents().length > 0;
         if (!hasContent) {
-          // Set a basic MJML template
+          // Set a better default MJML template with distinct visual sections
           this.editor.setComponents(`<mjml>
-  <mj-body>
-    <mj-section>
+  
+  <mj-body background-color="#f4f4f4">
+    <!-- Header Section -->
+    <mj-section background-color="#F59E0B" padding="20px">
       <mj-column>
-        <mj-text>Start building your email here...</mj-text>
+        <mj-text align="center" color="#ffffff" font-size="28px" font-weight="bold">
+          Your Brand
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content (600px Container) -->
+    <mj-wrapper background-color="#ffffff" padding="0">
+      <mj-section background-color="#ffffff" padding="40px 25px">
+        <mj-column>
+          <mj-text font-size="24px" font-weight="bold" color="#111827" padding-bottom="20px">
+            Welcome to Your Email Template
+          </mj-text>
+          <mj-text color="#4B5563">
+            Start building your email by dragging and dropping components from the left sidebar. This white section is your main 600px email container - perfect for content that needs to look great across all email clients.
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section background-color="#ffffff" padding="20px 25px">
+        <mj-column width="50%">
+          <mj-image src="https://placehold.co/600x400/000000/FFF" alt="Placeholder" />
+        </mj-column>
+        <mj-column width="50%">
+          <mj-text font-size="18px" font-weight="bold" color="#111827">
+            Feature Title
+          </mj-text>
+          <mj-text color="#4B5563" font-size="14px">
+            Add your content here. Drag components to build your email layout.
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section background-color="#ffffff" padding="30px 25px">
+        <mj-column>
+          <mj-button background-color="#F59E0B" color="#ffffff" font-weight="bold" href="#">
+            Call to Action
+          </mj-button>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+    <!-- Footer Section (Outside 600px Container) -->
+    <mj-section background-color="#111827" padding="30px 25px">
+      <mj-column>
+        <mj-text align="center" color="#9CA3AF" font-size="12px">
+          © 2025 Your Company. All rights reserved.
+        </mj-text>
+        <mj-text align="center" font-size="11px" padding-top="10px">
+          <a href="#" style="color: #F59E0B; text-decoration: none;">Unsubscribe</a> | 
+          <a href="#" style="color: #F59E0B; text-decoration: none;">Preferences</a>
+        </mj-text>
       </mj-column>
     </mj-section>
   </mj-body>
@@ -478,12 +532,64 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editor.Commands.add('clear-canvas', {
       run: (editor: any) => {
         if (confirm('⚠️ Are you sure you want to clear the canvas? This cannot be undone.')) {
-          // Set a basic MJML template
+          // Set the improved default MJML template
           editor.setComponents(`<mjml>
-  <mj-body>
-    <mj-section>
+  <mj-body background-color="#f4f4f4">
+    <!-- Header Section -->
+    <mj-section background-color="#F59E0B" padding="20px">
       <mj-column>
-        <mj-text>Start building your email here...</mj-text>
+        <mj-text align="center" color="#ffffff" font-size="28px" font-weight="bold">
+          Your Brand
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content (600px Container) -->
+    <mj-wrapper background-color="#ffffff" padding="0">
+      <mj-section background-color="#ffffff" padding="40px 25px">
+        <mj-column>
+          <mj-text font-size="24px" font-weight="bold" color="#111827" padding-bottom="20px">
+            Welcome to Your Email Template
+          </mj-text>
+          <mj-text color="#4B5563">
+            Start building your email by dragging and dropping components from the left sidebar. This white section is your main 600px email container - perfect for content that needs to look great across all email clients.
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section background-color="#ffffff" padding="20px 25px">
+        <mj-column width="50%">
+          <mj-image src="https://placehold.co/600x400/000000/FFF" alt="Placeholder" />
+        </mj-column>
+        <mj-column width="50%">
+          <mj-text font-size="18px" font-weight="bold" color="#111827">
+            Feature Title
+          </mj-text>
+          <mj-text color="#4B5563" font-size="14px">
+            Add your content here. Drag components to build your email layout.
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section background-color="#ffffff" padding="30px 25px">
+        <mj-column>
+          <mj-button background-color="#F59E0B" color="#ffffff" font-weight="bold" href="#">
+            Call to Action
+          </mj-button>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+    <!-- Footer Section (Outside 600px Container) -->
+    <mj-section background-color="#111827" padding="30px 25px">
+      <mj-column>
+        <mj-text align="center" color="#9CA3AF" font-size="12px">
+          © 2025 Your Company. All rights reserved.
+        </mj-text>
+        <mj-text align="center" font-size="11px" padding-top="10px">
+          <a href="#" style="color: #F59E0B; text-decoration: none;">Unsubscribe</a> | 
+          <a href="#" style="color: #F59E0B; text-decoration: none;">Preferences</a>
+        </mj-text>
       </mj-column>
     </mj-section>
   </mj-body>
@@ -938,32 +1044,63 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.isSaving.set(true);
     
-    const templateData = {
-      name: name.trim(),
-      description: description.trim(),
-      mjml: this.editor.getHtml(), // Store MJML code
-      components: JSON.parse(JSON.stringify(this.editor.getComponents())),
-      styles: JSON.parse(JSON.stringify(this.editor.getStyle())),
-      status: 'draft'
-    };
+    // Generate thumbnail from the canvas
+    this.generateThumbnail().then((thumbnailDataUrl) => {
+      const templateData = {
+        name: name.trim(),
+        description: description.trim(),
+        mjml: this.editor.getHtml(), // Store MJML code
+        components: JSON.parse(JSON.stringify(this.editor.getComponents())),
+        styles: JSON.parse(JSON.stringify(this.editor.getStyle())),
+        thumbnail: thumbnailDataUrl, // Store base64 thumbnail
+        status: 'draft'
+      };
 
-    this.templateService.createTemplate(templateData).subscribe({
-      next: (template) => {
-        this.templateId = template.id;
-        this.templateName.set(template.name);
-        this.lastSaved.set(new Date());
-        this.isSaving.set(false);
-        this.showSaveDialog.set(false);
-        
-        // Update URL without reloading
-        this.router.navigate(['/editor', template.id], { replaceUrl: true });
-        
-        alert('✅ Template saved successfully!');
-      },
-      error: (err) => {
-        this.isSaving.set(false);
-        alert(`Failed to save template: ${err.message}`);
-      }
+      this.templateService.createTemplate(templateData).subscribe({
+        next: (template) => {
+          this.templateId = template.id;
+          this.templateName.set(template.name);
+          this.lastSaved.set(new Date());
+          this.isSaving.set(false);
+          this.showSaveDialog.set(false);
+          
+          // Update URL without reloading
+          this.router.navigate(['/editor', template.id], { replaceUrl: true });
+          
+          alert('✅ Template saved successfully!');
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          alert(`Failed to save template: ${err.message}`);
+        }
+      });
+    }).catch((err) => {
+      console.error('Failed to generate thumbnail:', err);
+      // Save without thumbnail if generation fails
+      const templateData = {
+        name: name.trim(),
+        description: description.trim(),
+        mjml: this.editor.getHtml(),
+        components: JSON.parse(JSON.stringify(this.editor.getComponents())),
+        styles: JSON.parse(JSON.stringify(this.editor.getStyle())),
+        status: 'draft'
+      };
+
+      this.templateService.createTemplate(templateData).subscribe({
+        next: (template) => {
+          this.templateId = template.id;
+          this.templateName.set(template.name);
+          this.lastSaved.set(new Date());
+          this.isSaving.set(false);
+          this.showSaveDialog.set(false);
+          this.router.navigate(['/editor', template.id], { replaceUrl: true });
+          alert('✅ Template saved successfully!');
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          alert(`Failed to save template: ${err.message}`);
+        }
+      });
     });
   }
 
@@ -972,22 +1109,46 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.isSaving.set(true);
     
-    const updateData = {
-      mjml: this.editor.getHtml(), // Store MJML code
-      components: JSON.parse(JSON.stringify(this.editor.getComponents())),
-      styles: JSON.parse(JSON.stringify(this.editor.getStyle()))
-    };
+    // Generate updated thumbnail
+    this.generateThumbnail().then((thumbnailDataUrl) => {
+      const updateData = {
+        mjml: this.editor.getHtml(), // Store MJML code
+        components: JSON.parse(JSON.stringify(this.editor.getComponents())),
+        styles: JSON.parse(JSON.stringify(this.editor.getStyle())),
+        thumbnail: thumbnailDataUrl // Update thumbnail
+      };
 
-    this.templateService.updateTemplate(this.templateId, updateData).subscribe({
-      next: () => {
-        this.lastSaved.set(new Date());
-        this.isSaving.set(false);
-        alert('✅ Template updated successfully!');
-      },
-      error: (err) => {
-        this.isSaving.set(false);
-        alert(`Failed to update template: ${err.message}`);
-      }
+      this.templateService.updateTemplate(this.templateId!, updateData).subscribe({
+        next: () => {
+          this.lastSaved.set(new Date());
+          this.isSaving.set(false);
+          alert('✅ Template updated successfully!');
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          alert(`Failed to update template: ${err.message}`);
+        }
+      });
+    }).catch((err) => {
+      console.error('Failed to generate thumbnail:', err);
+      // Update without thumbnail if generation fails
+      const updateData = {
+        mjml: this.editor.getHtml(),
+        components: JSON.parse(JSON.stringify(this.editor.getComponents())),
+        styles: JSON.parse(JSON.stringify(this.editor.getStyle()))
+      };
+
+      this.templateService.updateTemplate(this.templateId!, updateData).subscribe({
+        next: () => {
+          this.lastSaved.set(new Date());
+          this.isSaving.set(false);
+          alert('✅ Template updated successfully!');
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          alert(`Failed to update template: ${err.message}`);
+        }
+      });
     });
   }
 
@@ -1018,5 +1179,128 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (diffHours < 24) return `${diffHours} hours ago`;
     
     return lastSavedDate.toLocaleString();
+  }
+
+  /**
+   * Generate thumbnail from the current canvas
+   */
+  private generateThumbnail(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      try {
+        // Get the iframe containing the email preview
+        const iframe = this.editor.Canvas.getFrameEl();
+        if (!iframe) {
+          reject(new Error('Canvas iframe not found'));
+          return;
+        }
+
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (!iframeDoc) {
+          reject(new Error('Cannot access iframe document'));
+          return;
+        }
+
+        const body = iframeDoc.body;
+        
+        // Use html2canvas to capture the iframe content
+        html2canvas(body, {
+          allowTaint: true,
+          useCORS: true,
+          scale: 0.5, // Reduce scale for smaller file size
+          width: 600,
+          height: Math.min(body.scrollHeight, 800), // Limit height to avoid huge images
+          windowWidth: 600,
+          windowHeight: Math.min(body.scrollHeight, 800),
+          backgroundColor: '#f4f4f4',
+          logging: false,
+          imageTimeout: 0,
+          removeContainer: true
+        }).then(canvas => {
+          // Resize canvas to thumbnail size
+          const thumbnailCanvas = document.createElement('canvas');
+          const thumbnailWidth = 300;
+          const thumbnailHeight = 200;
+          
+          thumbnailCanvas.width = thumbnailWidth;
+          thumbnailCanvas.height = thumbnailHeight;
+          
+          const ctx = thumbnailCanvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'));
+            return;
+          }
+
+          // Draw the captured canvas onto thumbnail canvas with proper scaling
+          ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, thumbnailWidth, thumbnailHeight);
+
+          // Convert to base64 with compression (JPEG at 0.7 quality)
+          const dataUrl = thumbnailCanvas.toDataURL('image/jpeg', 0.7);
+          
+          console.log(`Thumbnail generated: ${dataUrl.length} characters`);
+          resolve(dataUrl);
+        }).catch(error => {
+          console.error('html2canvas error:', error);
+          // Fallback to simple placeholder if html2canvas fails
+          this.generateFallbackThumbnail().then(resolve).catch(reject);
+        });
+      } catch (error) {
+        console.error('Error generating thumbnail:', error);
+        // Fallback to simple placeholder
+        this.generateFallbackThumbnail().then(resolve).catch(reject);
+      }
+    });
+  }
+
+  /**
+   * Generate a simple fallback thumbnail if html2canvas fails
+   */
+  private generateFallbackThumbnail(): Promise<string> {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const thumbnailWidth = 300;
+      const thumbnailHeight = 200;
+      
+      canvas.width = thumbnailWidth;
+      canvas.height = thumbnailHeight;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve('');
+        return;
+      }
+
+      // Draw a simple preview representation
+      ctx.fillStyle = '#f4f4f4';
+      ctx.fillRect(0, 0, thumbnailWidth, thumbnailHeight);
+
+      // Header section (amber)
+      ctx.fillStyle = '#F59E0B';
+      ctx.fillRect(0, 0, thumbnailWidth, 25);
+      
+      // Main content area (white)
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(10, 35, thumbnailWidth - 20, thumbnailHeight - 70);
+      
+      // Add some visual detail
+      ctx.fillStyle = '#E5E7EB';
+      ctx.fillRect(20, 45, thumbnailWidth - 40, 8);
+      ctx.fillRect(20, 58, thumbnailWidth - 60, 6);
+      ctx.fillRect(20, 68, thumbnailWidth - 50, 6);
+      
+      // Represent an image placeholder
+      ctx.fillStyle = '#FEF3C7';
+      ctx.fillRect(20, 80, (thumbnailWidth - 40) / 2 - 5, 50);
+      
+      // Represent button
+      ctx.fillStyle = '#F59E0B';
+      ctx.fillRect(20, 140, 60, 15);
+
+      // Footer (dark)
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(0, thumbnailHeight - 25, thumbnailWidth, 25);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+      resolve(dataUrl);
+    });
   }
 }

@@ -44,7 +44,14 @@
     <div *ngIf="!loading() && !error() && templates().length > 0" class="templates-grid">
       <div *ngFor="let template of templates()" class="template-card">
         <div class="template-thumbnail">
-          <div class="thumbnail-placeholder">
+          <img 
+            *ngIf="template.thumbnail" 
+            [src]="getSafeThumbnail(template.thumbnail)" 
+            [alt]="template.name"
+            class="thumbnail-image"
+            (error)="onThumbnailError($event)"
+          />
+          <div *ngIf="!template.thumbnail" class="thumbnail-placeholder">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M4 4h16v16H4z"/>
               <path d="M9 9h6M9 13h6M9 17h3"/>

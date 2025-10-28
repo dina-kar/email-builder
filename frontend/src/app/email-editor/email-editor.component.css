@@ -524,7 +524,7 @@
   font-weight: 600;
   color: var(--theme-text-heading);
   margin-bottom: var(--spacing-1);
-  display: block;
+  display: flex;
 }
 
 ::ng-deep .gjs-sm-field,
@@ -1024,6 +1024,121 @@
 
 ::ng-deep .gjs-cv-canvas table[role="presentation"].gjs-selected {
   outline: none !important;
+}
+
+/* ============================================
+   MJML BODY AND WRAPPER VISUAL DISTINCTION
+   ============================================ */
+/* Make mj-body visually distinct (outer gray background) */
+::ng-deep .gjs-cv-canvas iframe[id^="gjs-frame-"] {
+  background-color: #f4f4f4 !important;
+}
+
+/* Style mj-body to show the background clearly */
+::ng-deep [data-gjs-type="mj-body"],
+::ng-deep .gjs-cv-canvas [data-gjs-type="mj-body"] {
+  position: relative;
+}
+
+::ng-deep [data-gjs-type="mj-body"].gjs-hovered::before {
+  content: 'Email Body (Gray Background Area)';
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(107, 114, 128, 0.95);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Style mj-wrapper to show the 600px container clearly */
+::ng-deep [data-gjs-type="mj-wrapper"],
+::ng-deep .gjs-cv-canvas [data-gjs-type="mj-wrapper"] {
+  position: relative;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
+}
+
+::ng-deep [data-gjs-type="mj-wrapper"].gjs-hovered {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.4) !important;
+}
+
+::ng-deep [data-gjs-type="mj-wrapper"].gjs-hovered::before {
+  content: '600px Email Container (White Area)';
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(245, 158, 11, 0.95);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Style mj-section to show sections clearly */
+::ng-deep [data-gjs-type="mj-section"].gjs-hovered {
+  outline: 2px dashed rgba(59, 130, 246, 0.5) !important;
+  outline-offset: -2px;
+}
+
+::ng-deep [data-gjs-type="mj-section"].gjs-selected {
+  outline: 2px solid rgba(59, 130, 246, 0.8) !important;
+  outline-offset: -2px;
+}
+
+/* Make columns more visible when hovered/selected */
+::ng-deep [data-gjs-type="mj-column"].gjs-hovered {
+  outline: 2px dashed rgba(6, 182, 212, 0.5) !important;
+  outline-offset: -2px;
+  background-color: rgba(6, 182, 212, 0.03) !important;
+}
+
+::ng-deep [data-gjs-type="mj-column"].gjs-selected {
+  outline: 2px solid rgba(6, 182, 212, 0.8) !important;
+  outline-offset: -2px;
+  background-color: rgba(6, 182, 212, 0.05) !important;
+}
+
+/* Add visual guides for empty sections */
+::ng-deep [data-gjs-type="mj-section"]:empty::after,
+::ng-deep [data-gjs-type="mj-wrapper"]:empty::after {
+  content: 'Drop sections or columns here';
+  display: block;
+  text-align: center;
+  padding: 40px 20px;
+  color: #9ca3af;
+  font-size: 14px;
+  font-style: italic;
+  border: 2px dashed #e5e7eb;
+  border-radius: 8px;
+  margin: 10px;
+  background-color: rgba(249, 250, 251, 0.5);
+}
+
+/* Add visual guides for empty columns */
+::ng-deep [data-gjs-type="mj-column"]:empty::after {
+  content: 'Drop content here';
+  display: block;
+  text-align: center;
+  padding: 30px 10px;
+  color: #9ca3af;
+  font-size: 12px;
+  font-style: italic;
+  border: 2px dashed #e5e7eb;
+  border-radius: 4px;
+  margin: 5px;
+  min-height: 60px;
+  background-color: rgba(249, 250, 251, 0.3);
 }
 
 /* ============================================
