@@ -39,6 +39,9 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   protected lastSaved = signal<Date | null>(null);
   protected showSaveDialog = signal(false);
   protected saveMessage = signal<{text: string, type: 'success' | 'error'} | null>(null);
+  protected showSendEmailDialog = signal(false);
+  protected isSendingEmail = signal(false);
+  protected sendEmailStatus = signal<{message: string, type: 'success' | 'error'} | null>(null);
 
   ngOnInit(): void {
     // Get template ID from route params if editing
@@ -1355,5 +1358,117 @@ export class EmailEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
       resolve(dataUrl);
     });
+  }
+
+  /**
+   * Open the send email dialog
+   */
+  protected openSendEmailDialog(): void {
+    this.showSendEmailDialog.set(true);
+    this.sendEmailStatus.set(null);
+  }
+
+  /**
+   * Close the send email dialog
+   */
+  protected closeSendEmailDialog(): void {
+    this.showSendEmailDialog.set(false);
+    this.sendEmailStatus.set(null);
+  }
+
+  /**
+   * Send email with the current template
+   */
+  protected sendEmail(subject: string, recipientsText: string): void {
+    if (!subject.trim()) {
+      this.sendEmailStatus.set({
+        message: 'Please enter an email subject',
+        type: 'error'
+      });
+      return;
+    }
+
+    if (!recipientsText.trim()) {
+      this.sendEmailStatus.set({
+        message: 'Please enter at least one recipient',
+        type: 'error'
+      });
+      return;
+    }
+
+    // Parse recipients (support comma and newline separated)
+    const recipients = recipientsText
+      .split(/[,\n]/)
+      .map(email => email.trim())
+      .filter(email => email.length > 0);
+
+    if (recipients.length === 0) {
+      this.sendEmailStatus.set({
+        message: 'Please enter valid email addresses',
+        type: 'error'
+      });
+      return;
+    }
+
+    // Validate email addresses
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const invalidEmails = recipients.filter(email => !emailRegex.test(email));
+    if (invalidEmails.length > 0) {
+      this.sendEmailStatus.set({
+        message: `Invalid email address: ${invalidEmails[0]}`,
+        type: 'error'
+      });
+      return;
+    }
+
+    this.isSendingEmail.set(true);
+    this.sendEmailStatus.set(null);
+
+    try {
+      // Get the MJML code directly from the editor
+      const mjmlCode = this.editor.getHtml();
+      
+      // Inject email metadata (title and preview) into MJML
+      const mjmlWithMetadata = this.injectEmailMetadata(mjmlCode);
+
+      if (!mjmlWithMetadata) {
+        this.isSendingEmail.set(false);
+        this.sendEmailStatus.set({
+          message: 'Failed to get email template. Please check your MJML structure.',
+          type: 'error'
+        });
+        return;
+      }
+
+      // Send MJML directly to backend - it will compile it there
+      this.templateService.sendEmail(recipients, subject, mjmlWithMetadata).subscribe({
+        next: (response) => {
+          this.isSendingEmail.set(false);
+          this.sendEmailStatus.set({
+            message: `Email sent successfully to ${recipients.length} recipient${recipients.length > 1 ? 's' : ''}!`,
+            type: 'success'
+          });
+          
+          // Close dialog after a delay
+          setTimeout(() => {
+            this.closeSendEmailDialog();
+            this.showMessage(`Email sent to ${recipients.length} recipient${recipients.length > 1 ? 's' : ''}!`, 'success');
+          }, 2000);
+        },
+        error: (err) => {
+          this.isSendingEmail.set(false);
+          this.sendEmailStatus.set({
+            message: `Failed to send email: ${err.message}`,
+            type: 'error'
+          });
+        }
+      });
+    } catch (error: any) {
+      this.isSendingEmail.set(false);
+      this.sendEmailStatus.set({
+        message: `Error: ${error.message || 'Unknown error occurred'}`,
+        type: 'error'
+      });
+    }
   }
 }

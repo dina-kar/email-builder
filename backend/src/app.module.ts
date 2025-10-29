@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TemplatesModule } from './templates/templates.module';
 import { S3Module } from './s3/s3.module';
+import { EmailModule } from './email/email.module';
 import { Template } from './templates/entities/template.entity';
 
 @Module({
@@ -29,6 +30,7 @@ import { Template } from './templates/entities/template.entity';
     }),
     TemplatesModule,
     S3Module,
+    EmailModule,
   ],
   controllers: [],
   providers: [],

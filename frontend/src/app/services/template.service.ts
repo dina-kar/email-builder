@@ -165,6 +165,42 @@ export class TemplateService {
   }
 
   /**
+   * Send a test email
+   */
+  sendTestEmail(recipients?: string[]): Observable<any> {
+    const body = recipients ? { recipients } : {};
+    return this.http.post<any>(
+      `${environment.apiUrl}/email/send-test`,
+      body
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Send an email with custom content
+   */
+  sendEmail(recipients: string[], subject: string, mjmlContent: string): Observable<any> {
+    return this.http.post<any>(
+      `${environment.apiUrl}/email/send`,
+      { recipients, subject, mjmlContent }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Verify email server connection
+   */
+  verifyEmailConnection(): Observable<any> {
+    return this.http.get<any>(
+      `${environment.apiUrl}/email/verify`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Handle HTTP errors
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
